@@ -27,20 +27,29 @@ class UserController extends Controller
     {
         return view('pages.users.create');
     }
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            'name' => 'required|max:100|min:3',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|numeric',
-            'roles' => 'required|in:ADMIN,STAFF,USER',
-            'password' => 'required|min:8',
-        ]);
-
         $data = $request->all();
         $data['password'] = Hash::make($request->password);
         User::create($data);
         return redirect()->route('users.index')->with('success', 'User successfully created');
 
+    }
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        return view('pages.users.edit', compact('user'));
+    }
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $data = $request->validated();
+        $user->update($data);
+        return redirect()->route('users.index')->with('success', 'User successfully updated');
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'User successfully deleted');
     }
 }
