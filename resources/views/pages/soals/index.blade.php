@@ -11,7 +11,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Bank Soal</h1>
+                <h1>Bank Soal - Tugas 2 Waezqorney Huanfareyzo</h1>
                 <div class="section-header-button">
                     <a href="{{ route('soal.create') }}" class="btn btn-primary">Add Soal</a>
                 </div>
@@ -51,7 +51,8 @@
                                 <div class="float-right">
                                     <form method="GET" action="{{ route('soal.index') }}">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search" name="name">
+                                            <input type="text" class="form-control" placeholder="Search"
+                                                name="pertanyaan">
                                             <div class="input-group-append">
                                                 <button class="btn btn-primary"><i class="fas fa-search"></i></button>
                                             </div>
