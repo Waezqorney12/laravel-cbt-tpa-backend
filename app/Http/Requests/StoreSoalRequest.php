@@ -23,7 +23,7 @@ class StoreSoalRequest extends FormRequest
     {
         return [
             'pertanyaan' => 'required|max:255|min:3',
-            'kategori' => 'required|in:Numeric,Verbal, Logika',
+            'kategori' => 'required|in:Numeric,Verbal,Logika',
             'jawaban_a' => 'required|max:255',
             'jawaban_b' => 'required|max:255',
             'jawaban_c' => 'required|max:255',
