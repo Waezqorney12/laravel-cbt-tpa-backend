@@ -41,7 +41,7 @@ class UjianController extends Controller
 
         foreach ($soalLogika as $soal) {
             UjianSoalList::create([
-                'user_id' => $ujian->id,
+                'ujian_id' => $ujian->id,
                 'soal_id' => $soal->id
             ]);
         }
