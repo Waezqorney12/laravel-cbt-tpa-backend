@@ -19,7 +19,9 @@ class DatabaseSeeder extends Seeder
                 UjianSeeder::class,
                 UjianSoalListSeeder::class,
                 MateriSeeder::class,
+                UserMateriSeeder::class,
             ]
         );
+
     }
 }

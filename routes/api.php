@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UjianController;
 use App\Http\Controllers\Api\MateriController;
+use App\Http\Controllers\UserMateriController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,4 +37,8 @@ Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori'])
 
 Route::post('/answers', [UjianController::class, 'jawabSoal'])->middleware('auth:sanctum');
 
-Route::apiResource('materis', MateriController::class)->middleware('auth:sanctum');
+Route::get('/get-materi', [MateriController::class, 'show'])->middleware('auth:sanctum');
+
+Route::post('assign-materi', [UserMateriController::class, 'store']);
+
+//Route::put('/update-value', [UserMateriController::class, 'updateValueMaterial'])->middleware('auth:sanctum');
