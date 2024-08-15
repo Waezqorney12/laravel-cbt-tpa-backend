@@ -17,9 +17,12 @@ class MateriFactory extends Factory
     public function definition(): array
     {
         return [
+
             'name' => $this->faker->name,
+            'title' => $this->faker->sentence(),
             'description' => $this->faker->text(),
             'image' => $this->faker->imageUrl(),
+            'kategori' => $this->faker->randomElement(['Numeric', 'Verbal', 'Logika']),
         ];
     }
 }
