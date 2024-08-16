@@ -33,4 +33,24 @@ class UserMateriController extends Controller
 
         return response()->json(['message' => 'Materi successfully assigned to the user'], 201);
     }
+
+    public function updateValueMaterial(Request $request)
+    {
+        $validatedData = $request->validate([
+            'materi_id' => 'required|exists:materis,id',
+            'value' => 'required|integer|min:0|max:100',
+        ]);
+
+        $user = $request->user();
+
+        $existingMateri = $user->materis()->where('materi_id', $validatedData['materi_id'])->exists();
+        if (!$existingMateri) {
+            return response()->json(['message' => 'Materi tidak ditemukan untuk user ini'], 404);
+        }
+
+        // Mengupdate nilai value pada tabel pivot
+        $user->materis()->updateExistingPivot($validatedData['materi_id'], ['value' => $validatedData['value']]);
+
+        return response()->json(['message' => 'Materi value successfully updated'], 200);
+    }
 }

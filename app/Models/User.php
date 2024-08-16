@@ -47,6 +47,10 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function materis()
     {
         return $this->belongsToMany(Materi::class, 'user_materis')->withPivot('value');

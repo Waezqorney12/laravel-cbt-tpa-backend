@@ -41,4 +41,4 @@ Route::get('/get-materi', [MateriController::class, 'show'])->middleware('auth:s
 
 Route::post('assign-materi', [UserMateriController::class, 'store']);
 
-//Route::put('/update-value', [UserMateriController::class, 'updateValueMaterial'])->middleware('auth:sanctum');
+Route::put('update-value', [UserMateriController::class, 'updateValueMaterial'])->middleware('auth:sanctum');
