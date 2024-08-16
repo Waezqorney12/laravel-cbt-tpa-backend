@@ -37,7 +37,7 @@ class UserMateriController extends Controller
     public function updateValueMaterial(Request $request)
     {
         $validatedData = $request->validate([
-            'materi_id' => 'required|exists:materis,id',
+            'materi_id' => 'required|integer|exists:materis,id',
             'value' => 'required|integer|min:0|max:100',
         ]);
 
