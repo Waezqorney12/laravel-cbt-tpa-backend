@@ -93,6 +93,43 @@ class UjianController extends Controller
         ]);
     }
 
+    public function hitungNilaiUjianByKategori(Request $request)
+    {
+        $kategori = $request->kategori;
+        $ujian = Ujian::where('user_id', $request->user()->id)->first();
+        $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
+        // Ujian Soal List by kategori
+        $ujianSoalList = $ujianSoalList->filter(function ($value, $key) use ($kategori) {
+            return $value->soal->kategori == $kategori;
+        });
+
+        // Hitung nilai
+        $totalBenar = $ujianSoalList->where('kebenaran', true)->count();
+        $totalSoal = $ujianSoalList->count();
+        $nilai = ($totalBenar / $totalSoal) * 100;
+
+        $kategori_field = 'nilai_verbal';
+        switch ($kategori) {
+            case 'Numeric':
+                $kategori_field = 'nilai_angka';
+                break;
+            case 'Logika':
+                $kategori_field = 'nilai_logika';
+                break;
+        }
+
+        // Update nilai
+        $ujian->update([
+            $kategori_field => $nilai
+        ]);
+
+        return response()->json([
+            'message' => 'Berhasil menghitung nilai',
+            'kategori' => $kategori_field,
+            'nilai' => $nilai
+        ]);
+    }
+
     /**
      * Display the specified resource.
      */

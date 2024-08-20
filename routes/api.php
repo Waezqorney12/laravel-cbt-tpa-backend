@@ -32,6 +32,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::post('/create-ujian', [UjianController::class, 'createUjian'])->middleware('auth:sanctum');
 
+// Get hasil ujian
+Route::get('/get-nilai', [UjianController::class, 'hitungNilaiUjianByKategori'])->middleware('auth:sanctum');
+
 // Get soal ujian
 Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori'])->middleware('auth:sanctum');
 
