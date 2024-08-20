@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UjianController;
 use App\Http\Controllers\Api\MateriController;
+use App\Http\Controllers\UserMateriController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,9 +32,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::post('/create-ujian', [UjianController::class, 'createUjian'])->middleware('auth:sanctum');
 
+// Get hasil ujian
+Route::get('/get-nilai', [UjianController::class, 'hitungNilaiUjianByKategori'])->middleware('auth:sanctum');
+
 // Get soal ujian
 Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori'])->middleware('auth:sanctum');
 
 Route::post('/answers', [UjianController::class, 'jawabSoal'])->middleware('auth:sanctum');
 
-Route::apiResource('materis', MateriController::class)->middleware('auth:sanctum');
+Route::get('/get-materi', [MateriController::class, 'show'])->middleware('auth:sanctum');
+
+Route::post('assign-materi', [UserMateriController::class, 'store']);
+
+Route::put('update-value', [UserMateriController::class, 'updateValueMaterial'])->middleware('auth:sanctum');

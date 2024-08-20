@@ -15,5 +15,11 @@ class Materi extends Model
         'description',
         'image',
         'kategori',
+        'value'
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_materis')->withPivot('value');
+    }
 }
