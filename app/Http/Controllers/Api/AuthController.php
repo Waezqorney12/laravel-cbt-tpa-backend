@@ -79,6 +79,16 @@ class AuthController extends Controller
         ]);
     }
 
+    public function changeProfile(Request $request)
+    {
+        $user = $request->user();
+        $user->update($request->all());
+        return response()->json([
+            'message' => 'Profile updated',
+            'data' => $user
+        ]);
+    }
+
     /**
      * Update the specified resource in storage.
      */

@@ -23,6 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 });
+
+// User
+Route::post('/change', [AuthController::class, 'changeProfile'])->middleware('auth:sanctum');
 // Register
 Route::post('/register', [AuthController::class, 'register']);
 // Login
@@ -33,7 +36,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::post('/create-ujian', [UjianController::class, 'createUjian'])->middleware('auth:sanctum');
 
 // Get hasil ujian
-Route::get('/get-nilai', [UjianController::class, 'hitungNilaiUjianByKategori'])->middleware('auth:sanctum');
+Route::get('/get-hasil-nilai', [UjianController::class, 'hitungNilaiUjianByKategori'])->middleware('auth:sanctum');
+
+
+Route::get('/nilai', [UjianController::class, 'getAllNilai'])->middleware('auth:sanctum');
+
+
+Route::post('/exit', [UjianController::class, 'exitUser'])->middleware('auth:sanctum');
 
 // Get soal ujian
 Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori'])->middleware('auth:sanctum');
