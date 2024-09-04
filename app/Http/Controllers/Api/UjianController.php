@@ -63,6 +63,20 @@ class UjianController extends Controller
             'data' => SoalResource::collection($soal)
         ]);
     }
+    public function exitUser(Request $request)
+    {
+        $ujian = Ujian::where('user_id', $request->user()->id)->first();
+        $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
+        $soalIds = $ujianSoalList->pluck('soal_id');
+
+        UjianSoalList::where('ujian_id', $ujian->id)
+            ->whereIn('soal_id', $request->input('soal_id'))
+            ->whereNull('kebenaran')
+            ->update([
+                'kebenaran' => false
+            ]);
+
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -125,10 +139,38 @@ class UjianController extends Controller
 
         return response()->json([
             'message' => 'Berhasil menghitung nilai',
+            'total_benar' => $totalBenar,
+            'total_soal' => $totalSoal,
+            'total_salah' => $totalSoal - $totalBenar,
             'kategori' => $kategori_field,
             'nilai' => $nilai
         ]);
     }
+
+
+    public function getAllNilai(Request $request)
+    {
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Get all Ujian records for this user
+        $ujian = Ujian::where('user_id', $user->id)->get();
+
+        // Map over the Ujian records and calculate the nilai for each one
+        $nilaiList = $ujian->map(function ($ujian) {
+            return [
+                'ujian_id' => $ujian->id,
+                'nilai_angka' => $ujian->nilai_angka,
+                'nilai_verbal' => $ujian->nilai_verbal,
+                'nilai_logika' => $ujian->nilai_logika,
+                'hasil' => $ujian->hasil,
+            ];
+        });
+
+        // Return the list of nilai
+        return response()->json($nilaiList);
+    }
+
 
     /**
      * Display the specified resource.
