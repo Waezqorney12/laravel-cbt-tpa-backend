@@ -37,12 +37,8 @@ class AuthController extends Controller
 
             event(new Registered($user));
             $user->sendEmailVerificationNotification();
-
-            $token = $user->createToken('auth_token')->plainTextToken;
-
             return response()->json([
-                'access_token' => $token,
-                'user' => UserResource::make($user),
+                'message' => 'Registration successful, check your email for account activation',
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Registration failed. ' . $e->getMessage()], 500);
