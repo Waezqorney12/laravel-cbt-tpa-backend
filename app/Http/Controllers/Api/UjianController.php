@@ -107,44 +107,63 @@ class UjianController extends Controller
         ]);
     }
 
+    // TODO: Implement hasil sekalian
     public function hitungNilaiUjianByKategori(Request $request)
     {
-        $kategori = $request->kategori;
-        $ujian = Ujian::where('user_id', $request->user()->id)->first();
-        $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
-        // Ujian Soal List by kategori
-        $ujianSoalList = $ujianSoalList->filter(function ($value, $key) use ($kategori) {
-            return $value->soal->kategori == $kategori;
-        });
+        try {
+            $userId = $request->user()->id;
+            $kategori = $request->kategori;
+            $ujian = Ujian::where('user_id', $userId)->first();
+            $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
+            // Ujian Soal List by kategori
+            $ujianSoalList = $ujianSoalList->filter(function ($value, $key) use ($kategori) {
+                return $value->soal->kategori == $kategori;
+            });
 
-        // Hitung nilai
-        $totalBenar = $ujianSoalList->where('kebenaran', true)->count();
-        $totalSoal = $ujianSoalList->count();
-        $nilai = ($totalBenar / $totalSoal) * 100;
+            // Hitung nilai
+            $totalBenar = $ujianSoalList->where('kebenaran', true)->count();
+            $totalSoal = $ujianSoalList->count();
+            $nilai = ($totalBenar / $totalSoal) * 100;
 
-        $kategori_field = 'nilai_verbal';
-        switch ($kategori) {
-            case 'Numeric':
-                $kategori_field = 'nilai_angka';
-                break;
-            case 'Logika':
-                $kategori_field = 'nilai_logika';
-                break;
+            $kategori_field = 'nilai_verbal';
+            switch ($kategori) {
+                case 'Numeric':
+                    $kategori_field = 'nilai_angka';
+                    break;
+                case 'Logika':
+                    $kategori_field = 'nilai_logika';
+                    break;
+            }
+
+            $hasilUjian = Ujian::findOrFail($userId);
+            if ($ujian->nilai_angka !== null && $ujian->nilai_verbal !== null && $ujian->nilai_logika !== null) {
+                $totalNilai = $ujian->nilai_angka + $ujian->nilai_verbal + $ujian->nilai_logika / 3;
+                $hasil = $totalNilai >= 70 ? 'Lulus' : 'Tidak Lulus';
+                $ujian->update([
+                    'hasil' => $hasil
+                ]);
+            }
+            // Update nilai
+            $ujian->update([
+                $kategori_field => $nilai
+            ]);
+
+
+
+            return response()->json([
+                'message' => 'Berhasil menghitung nilai',
+                'total_benar' => $totalBenar,
+                'total_soal' => $totalSoal,
+                'total_salah' => $totalSoal - $totalBenar,
+                'kategori' => $kategori_field,
+                'nilai' => $nilai
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Gagal menghitung nilai',
+                'error' => $th->getMessage()
+            ], 500);
         }
-
-        // Update nilai
-        $ujian->update([
-            $kategori_field => $nilai
-        ]);
-
-        return response()->json([
-            'message' => 'Berhasil menghitung nilai',
-            'total_benar' => $totalBenar,
-            'total_soal' => $totalSoal,
-            'total_salah' => $totalSoal - $totalBenar,
-            'kategori' => $kategori_field,
-            'nilai' => $nilai
-        ]);
     }
 
 
