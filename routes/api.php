@@ -12,17 +12,6 @@ use Illuminate\Auth\Events\Verified;
 use App\Models\User;
 
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -46,11 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori']);
     Route::get('/get-materi', [MateriController::class, 'show']);
 
-
-
-
     // PUT
     Route::put('update-value', [UserMateriController::class, 'updateValueMaterial']);
+    Route::put('/update-user', [AuthController::class, 'userUpdate']);
 
 
 });

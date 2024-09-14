@@ -2,22 +2,37 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function userUpdate(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $user->update($request->all());
+            broadcast(new UserUpdated($user));
 
-
+            return response()->json([
+                'message' => 'User updated successfully',
+                'data' => $user
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to update user',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
 
     public function register(Request $request)
     {
@@ -44,11 +59,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Registration failed. ' . $e->getMessage()], 500);
         }
     }
-
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function login(Request $request)
     {
         $loginData = $request->validate([
@@ -84,11 +95,6 @@ class AuthController extends Controller
         ], 200);
     }
 
-
-
-    /**
-     * Display the specified resource.
-     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -125,21 +131,8 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    {}
     public function destroy(string $id)
-    {
-        //
-    }
+    {}
 }
