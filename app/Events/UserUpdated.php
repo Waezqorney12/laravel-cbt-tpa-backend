@@ -16,7 +16,11 @@ class UserUpdated implements ShouldBroadcast
 
     public $user;
     public function __construct($user)
-    {$this->user = $user;}
+    {
+        $this->user = $user;
+    }
     public function broadcastOn(): array
-    {return [new PrivateChannel('user.' . $this->user->id)];}
+    {
+        return [new PrivateChannel('App.Models.User.' . $this->user->id)];
+    }
 }

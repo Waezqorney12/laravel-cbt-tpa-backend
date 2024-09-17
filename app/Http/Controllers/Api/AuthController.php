@@ -20,7 +20,7 @@ class AuthController extends Controller
         try {
             $user = $request->user();
             $user->update($request->all());
-            broadcast(new UserUpdated($user));
+            broadcast(new UserUpdated($user))->toOthers();
 
             return response()->json([
                 'message' => 'User updated successfully',
@@ -59,7 +59,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Registration failed. ' . $e->getMessage()], 500);
         }
     }
-    
+
     public function login(Request $request)
     {
         $loginData = $request->validate([
@@ -132,7 +132,9 @@ class AuthController extends Controller
         }
     }
     public function update(Request $request, string $id)
-    {}
+    {
+    }
     public function destroy(string $id)
-    {}
+    {
+    }
 }

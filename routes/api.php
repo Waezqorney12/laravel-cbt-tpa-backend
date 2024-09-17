@@ -46,8 +46,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('assign-materi', [UserMateriController::class, 'store']);
 
-Route::post('email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
-Route::get('email/verify', 'Auth\VerificationController@show')->name('verification.notice');
+// Route::post('email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
+// Route::get('email/verify', 'Auth\VerificationController@show')->name('verification.notice');
 
 // This is for when the user click the link it will validate the user so the email will be verified
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
