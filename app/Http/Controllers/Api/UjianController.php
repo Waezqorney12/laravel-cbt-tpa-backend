@@ -53,14 +53,23 @@ class UjianController extends Controller
     }
     public function getListSoalByKategori(Request $request)
     {
-        $ujian = Ujian::where('user_id', $request->user()->id)->first();
-        $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
-        $soalIds = $ujianSoalList->pluck('soal_id');
+        $ujianList = Ujian::where('user_id', $request->user()->id)->get();
+        $soalData = [];
 
-        $soal = Soal::whereIn('id', $soalIds)->where('kategori', $request->kategori)->get();
+        foreach ($ujianList as $ujian) {
+            $ujianSoalList = UjianSoalList::where('ujian_id', $ujian->id)->get();
+            $soalIds = $ujianSoalList->pluck('soal_id');
+
+            $soal = Soal::whereIn('id', $soalIds)->where('kategori', $request->kategori)->get();
+            $soalData[] = [
+                'ujian_id' => $ujian->id,
+                'soal' => SoalResource::collection($soal)
+            ];
+        }
+
         return response()->json([
             'message' => 'Berhasil mendapatkan soal',
-            'data' => SoalResource::collection($soal)
+            'data' => $soalData
         ]);
     }
     public function exitUser(Request $request)
@@ -135,20 +144,20 @@ class UjianController extends Controller
                     break;
             }
 
-            $hasilUjian = Ujian::findOrFail($userId);
             if ($ujian->nilai_angka !== null && $ujian->nilai_verbal !== null && $ujian->nilai_logika !== null) {
                 $totalNilai = $ujian->nilai_angka + $ujian->nilai_verbal + $ujian->nilai_logika / 3;
                 $hasil = $totalNilai >= 70 ? 'Lulus' : 'Tidak Lulus';
                 $ujian->update([
+                    $kategori_field => $nilai,
                     'hasil' => $hasil
+
+                ]);
+            } else {
+                $ujian->update([
+                    $kategori_field => $nilai,
+                    'hasil' => 'Belum dikerjakan semua'
                 ]);
             }
-            // Update nilai
-            $ujian->update([
-                $kategori_field => $nilai
-            ]);
-
-
 
             return response()->json([
                 'message' => 'Berhasil menghitung nilai',

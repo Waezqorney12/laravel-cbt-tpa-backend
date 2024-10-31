@@ -15,11 +15,16 @@ class DatabaseSeeder extends Seeder
         $this->call(
             [
                 UserSeeder::class,
+                UserImageSeeder::class,
+
                 SoalSeeder::class,
+
                 UjianSeeder::class,
                 UjianSoalListSeeder::class,
+
                 MateriSeeder::class,
-                UserMateriSeeder::class,
+                DetailMateriSeeder::class,
+                MateriImageSeeder::class,
             ]
         );
 

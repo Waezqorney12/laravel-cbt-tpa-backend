@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,10 +20,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
     protected $fillable = [
-        'name',
         'email',
         'password',
-        'phone',
+        'first_name',
+        'last_name',
+        'username',
+        'phone_number',
         'roles'
     ];
 
@@ -48,13 +49,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function materis()
+    public function detailMateri()
     {
-        return $this->belongsToMany(Materi::class, 'user_materis')->withPivot('value');
+        return $this->hasMany(DetailMateri::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(UserImages::class);
     }
 
 

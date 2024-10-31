@@ -10,16 +10,16 @@ class Materi extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'title',
-        'description',
-        'image',
-        'kategori',
-        'value'
+        'materi_title',
+        'materi_description',
     ];
 
-    public function users()
+    public function detailMateri()
     {
-        return $this->belongsToMany(User::class, 'user_materis')->withPivot('value');
+        return $this->hasMany(DetailMateri::class);
+    }
+    public function image()
+    {
+        return $this->hasMany(MateriImage::class);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\UserUpdated;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UjianController;
 use App\Http\Controllers\Api\MateriController;
@@ -12,9 +13,6 @@ use Illuminate\Auth\Events\Verified;
 use App\Models\User;
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
 Route::middleware('auth:sanctum')->group(function () {
     // POST
@@ -30,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     })->middleware(['auth:api', 'throttle:6,1'])->name('verification.send');
 
     // GET
+    Route::get('/get-user', [AuthController::class, 'getUser']);
     Route::get('/get-hasil-nilai', [UjianController::class, 'hitungNilaiUjianByKategori']);
     Route::get('/nilai', [UjianController::class, 'getAllNilai']);
     Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori']);
@@ -37,7 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // PUT
     Route::put('update-value', [UserMateriController::class, 'updateValueMaterial']);
-    Route::put('/update-user', [AuthController::class, 'userUpdate']);
+    Route::get('/update-user', [AuthController::class, 'update']);
 
 
 });
@@ -49,7 +48,6 @@ Route::post('assign-materi', [UserMateriController::class, 'store']);
 // Route::post('email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 // Route::get('email/verify', 'Auth\VerificationController@show')->name('verification.notice');
 
-// This is for when the user click the link it will validate the user so the email will be verified
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::find($id);
 
