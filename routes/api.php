@@ -16,26 +16,35 @@ use App\Models\User;
 
 Route::middleware('auth:sanctum')->group(function () {
     // Auth Routes
+
+    // GET
+    Route::get('/get-user', [AuthController::class, 'getUser']);
     // POST
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-profile', [AuthController::class, 'changeProfile']);
 
     // Ujian Routes
+
+    // GET
+    Route::get('/get-hasil-nilai', [UjianController::class, 'hitungNilaiUjianByKategori']);
+    Route::get('/nilai', [UjianController::class, 'getAllNilai']);
+    Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori']);
+    // POST
     Route::post('/create-ujian', [UjianController::class, 'createUjian']);
     Route::post('/exit', [UjianController::class, 'exitUser']);
     Route::post('/answers', [UjianController::class, 'jawabSoal']);
+
+    // Materi Routes
+
+    // GET
+    Route::get('/get-materi/{materi_kategori}', [MateriController::class, 'getMateri']);
 
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return response()->json('Verification link sent!');
     })->middleware(['auth:api', 'throttle:6,1'])->name('verification.send');
 
-    // GET
-    Route::get('/get-user', [AuthController::class, 'getUser']);
-    Route::get('/get-hasil-nilai', [UjianController::class, 'hitungNilaiUjianByKategori']);
-    Route::get('/nilai', [UjianController::class, 'getAllNilai']);
-    Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori']);
-    Route::get('/get-materi', [MateriController::class, 'show']);
+
 
     // PUT
     Route::put('update-value', [UserMateriController::class, 'updateValueMaterial']);
