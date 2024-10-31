@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class DetailMateri extends Model
 {
     use HasFactory;
+
+    protected $table = 'detail_materi';
     public function materi()
     {
         return $this->belongsTo(Materi::class);

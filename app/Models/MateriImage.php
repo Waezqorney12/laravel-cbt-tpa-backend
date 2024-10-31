@@ -9,7 +9,9 @@ class MateriImage extends Model
 {
     use HasFactory;
 
-    protected $table = [
+    protected $table = 'materi_images';
+
+    protected $fillable = [
         'materi_id',
         'materi_image_path'
     ];

@@ -18,31 +18,42 @@ class DetailMateriSeeder extends Seeder
                 'user_id' => 1,
                 'materi_id' => 1,
                 'status' => 0,
+                'created_at' => now(),
             ],
             [
                 'user_id' => 1,
                 'materi_id' => 2,
                 'status' => 0,
+                'created_at' => now(),
+
             ],
             [
                 'user_id' => 1,
                 'materi_id' => 3,
                 'status' => 0,
+                'created_at' => now(),
+
             ],
             [
                 'user_id' => 1,
                 'materi_id' => 4,
                 'status' => 0,
+                'created_at' => now(),
+
             ],
             [
                 'user_id' => 2,
                 'materi_id' => 1,
                 'status' => 0,
+                'created_at' => now(),
+
             ],
             [
                 'user_id' => 2,
                 'materi_id' => 3,
                 'status' => 0,
+                'created_at' => now(),
+
             ],
         ]);
     }
