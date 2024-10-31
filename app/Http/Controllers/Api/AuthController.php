@@ -169,6 +169,13 @@ class AuthController extends Controller
             $user = $request->user();
             $user->update($validatedData);
 
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imagePath = $image->store('profile_images', 'public'); // Store the image in the 'public/profile_images' directory
+
+                $validatedData['image'] = $imagePath;
+            }
+
             $updatedUser = User::with('images')->where('id', $user->id)->first();
 
             return response()->json([
