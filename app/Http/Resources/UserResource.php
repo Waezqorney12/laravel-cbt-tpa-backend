@@ -17,10 +17,10 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'first_name' => $this->name,
+            'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'username' => $this->username,
-            'phone_number' => $this->phone,
+            'phone_number' => $this->phone_number,
             'roles' => $this->roles,
             'image' => optional($this->images->first())->user_image_path,
         ];

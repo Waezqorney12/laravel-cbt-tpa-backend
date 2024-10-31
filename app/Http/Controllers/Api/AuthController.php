@@ -133,10 +133,18 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            'message' => 'Log out Success'
-        ]);
+        try {
+            $request->user()->tokens()->delete();
+
+            return response()->json([
+                'message' => 'Log out Success'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to logout',
+                'error' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function changeProfile(Request $request)
@@ -146,16 +154,26 @@ class AuthController extends Controller
                 'first_name' => 'string|max:255',
                 'last_name' => 'string|max:255',
                 'username' => 'string|max:255|unique:users,username,' . $request->user()->id,
-                'email' => 'string|email|max:255|unique:users,email,' . $request->user()->id,
                 'phone_number' => 'string|nullable|unique:users,phone_number,' . $request->user()->id,
+                'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
             ]);
-            $validate->validate();
+            if ($validate->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validate->errors()
+                ], 400);
+            }
+
+            $validatedData = $validate->validate();
+
             $user = $request->user();
-            $user->update($validate);
+            $user->update($validatedData);
+
+            $updatedUser = User::with('images')->where('id', $user->id)->first();
 
             return response()->json([
                 'message' => 'Profile updated successfully',
-                'data' => $user,
+                'data' => new UserResource($updatedUser),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

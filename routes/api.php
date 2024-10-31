@@ -15,9 +15,12 @@ use App\Models\User;
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth Routes
     // POST
-    Route::post('/change', [AuthController::class, 'changeProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/change-profile', [AuthController::class, 'changeProfile']);
+
+    // Ujian Routes
     Route::post('/create-ujian', [UjianController::class, 'createUjian']);
     Route::post('/exit', [UjianController::class, 'exitUser']);
     Route::post('/answers', [UjianController::class, 'jawabSoal']);
@@ -36,7 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // PUT
     Route::put('update-value', [UserMateriController::class, 'updateValueMaterial']);
-    Route::get('/update-user', [AuthController::class, 'update']);
 
 
 });
@@ -44,9 +46,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('assign-materi', [UserMateriController::class, 'store']);
-
-// Route::post('email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
-// Route::get('email/verify', 'Auth\VerificationController@show')->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::find($id);
