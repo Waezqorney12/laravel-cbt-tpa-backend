@@ -20,7 +20,8 @@ class MateriController extends Controller
             $materi = DetailMateri::with([
                 'materi' => function ($query) use ($materi_kategori) {
                     $query->where('materi_kategori', $materi_kategori);
-                }
+                },
+                'materi.image'
             ])->where('user_id', $request->user()->id)->get();
 
             $materi = $materi->filter(function ($detailMateri) {
