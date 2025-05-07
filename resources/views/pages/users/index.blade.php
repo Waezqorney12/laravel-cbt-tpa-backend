@@ -10,15 +10,10 @@
 @section('main')
     <div class="main-content">
         <section class="section">
-            <div class="section-header">
+            <div class="section-header d-flex justify-content-between align-items-center">
                 <h1>Users</h1>
                 <div class="section-header-button">
-                    <a href="{{ route('users.create') }}" class="btn btn-primary">Add New</a>
-                </div>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item"><a href="#">Users</a></div>
-                    <div class="breadcrumb-item">All Users</div>
+                    <a href="{{ route('users.create') }}" class="btn btn-primary">Add User</a>
                 </div>
             </div>
             <div class="section-body">
@@ -40,18 +35,11 @@
                                 <h4>All Users</h4>
                             </div>
                             <div class="card-body">
-                                <div class="float-left">
-                                    <select class="form-control selectric">
-                                        <option>Action For Selected</option>
-                                        <option>Move to Draft</option>
-                                        <option>Move to Pending</option>
-                                        <option>Delete Pemanently</option>
-                                    </select>
-                                </div>
                                 <div class="float-right">
                                     <form method="GET" action="{{ route('users.index') }}">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search" name="name">
+                                            <input type="text" class="form-control" placeholder="Search" name="name"
+                                                value="{{ request('name') }}">
                                             <div class="input-group-append">
                                                 <button class="btn btn-primary"><i class="fas fa-search"></i></button>
                                             </div>
@@ -64,49 +52,52 @@
                                 <div class="table-responsive">
                                     <table class="table-striped table">
                                         <tr>
-                                            <th>Name</th>
                                             <th>Email</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Birth Date</th>
+                                            <th>Gender</th>
+                                            <th>Address</th>
+                                            <th>Departement</th>
+                                            <th>Study Program</th>
+                                            <th>Entry Year</th>
                                             <th>Phone Number</th>
-                                            <th>Created At</th>
-                                            <th>Action</th>
+
                                         </tr>
                                         @foreach ($users as $user)
                                             <tr>
-                                                <td>{{ $user->name }}
 
-                                                </td>
-                                                <td>{{ $user->email }}
-                                                </td>
+                                                <td>{{ $user->email }}</td>
+                                                <td>{{ $user->first_name }}</td>
+                                                <td>{{ $user->last_name }}</td>
+                                                <td>{{ $user->birth_date }}</td>
+                                                <td>{{ ucfirst($user->gender) }}</td>
+                                                <td>{{ $user->address }}</td>
+                                                <td>{{ $user->departement }}</td>
+                                                <td>{{ $user->study_program }}</td>
+                                                <td>{{ $user->entry_year }}</td>
+                                                <td>{{ $user->phone_number }}</td>
                                                 <td>
-                                                    {{ $user->phone }}
-                                                </td>
-                                                <td>{{ $user->created_at }}</td>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <a href='{{ route('users.edit', $user->id) }}'
-                                                            class="btn btn-sm btn-info btn-icon">
-                                                            <i class="fas fa-edit"></i>
-                                                            Edit
-                                                        </a>
-
+                                                    <div style="display: flex; gap: 4px;">
+                                                        <a href="{{ route('users.edit', $user->id) }}"
+                                                            class="btn btn-warning btn-sm">Edit</a>
                                                         <form action="{{ route('users.destroy', $user->id) }}"
-                                                            method="POST" class="ml-2">
-                                                            <input type="hidden" name="_method" value="DELETE" />
-                                                            <input type="hidden" name="_token"
-                                                                value="{{ csrf_token() }}" />
-                                                            <button class="btn btn-sm btn-danger btn-icon confirm-delete">
-                                                                <i class="fas fa-times"></i> Delete
-                                                            </button>
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                class="btn btn-danger btn-sm">Delete</button>
                                                         </form>
                                                     </div>
                                                 </td>
+
                                             </tr>
                                         @endforeach
-
                                     </table>
                                 </div>
-                                <div class="float-right">
-                                    {{ $users->withQueryString()->links() }}
+
+                                <div class="mt-3">
+                                    {{ $users->links() }}
                                 </div>
                             </div>
                         </div>
