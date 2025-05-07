@@ -10,11 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ujian_soal_lists', function (Blueprint $table) {
+        Schema::create('quiz_result', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ujian_id')->constrained('ujians')->onDelete('cascade');
-            $table->foreignId('soal_id')->constrained('soals')->onDelete('cascade');
-            $table->boolean('kebenaran')->nullable();
+            $table->foreignId('quiz_id')->constrained('quiz')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->integer('score')->nullable();
+            $table->enum('status', ['pass', 'fail', 'not started'])->default('not started');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('ujian_soal_lists');
+        Schema::dropIfExists('quiz_result');
     }
 };

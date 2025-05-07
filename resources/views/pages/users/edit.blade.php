@@ -30,88 +30,188 @@
 
 
                 <div class="card">
-                    <form action="{{ route('users.update', $user) }}" method="POST">
+                    <form action="{{ route('users.update', $user->id) }}" method="POST">
                         @csrf
                         @method('PUT')
+
                         <div class="card-header">
-                            <h4>Input Text</h4>
+                            <h4>Edit User</h4>
                         </div>
+
                         <div class="card-body">
-                            <div class="form-group">
-                                <label>Name</label>
-                                <input type="text"
-                                    class="form-control @error('name')
-                                is-invalid
-                            @enderror"
-                                    name="name" value="{{ $user->name }}">
-                                @error('name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
+
+                            <!-- Email Field -->
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email"
-                                    class="form-control @error('email')
-                                is-invalid
-                            @enderror"
-                                    name="email" value="{{ $user->email }}">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                    name="email" value="{{ old('email', $user->email) }}">
                                 @error('email')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
                                 @enderror
                             </div>
+
+                            <!-- Username Field -->
                             <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fas fa-lock"></i>
-                                        </div>
-                                    </div>
-                                    <input type="password"
-                                        class="form-control @error('password')
-                                is-invalid
-                            @enderror"
-                                        name="password">
-                                </div>
-                                @error('password')
+                                <label>Username</label>
+                                <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                    name="username" value="{{ old('username', $user->username) }}">
+                                @error('username')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
                                 @enderror
                             </div>
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="number" class="form-control" name="phone" value="{{ $user->phone }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Roles</label>
-                                <div class="selectgroup w-100">
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="ADMIN" class="selectgroup-input"
-                                            @if ($user->roles == 'ADMIN') checked @endif>
-                                        <span class="selectgroup-button">Admin</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="STAFF" class="selectgroup-input"
-                                            @if ($user->roles == 'STAFF') checked @endif>
-                                        <span class="selectgroup-button">Staff</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="USER" class="selectgroup-input"
-                                            @if ($user->roles == 'USER') checked @endif>
-                                        <span class="selectgroup-button">User</span>
-                                    </label>
 
-                                </div>
+                            <!-- Role Field -->
+                            <div class="form-group">
+                                <label>Role</label>
+                                <select name="roles" class="form-control @error('roles') is-invalid @enderror">
+                                    <option value="ADMIN" {{ old('roles', $user->roles) == 'ADMIN' ? 'selected' : '' }}>
+                                        Admin</option>
+                                    <option value="STAFF" {{ old('roles', $user->roles) == 'STAFF' ? 'selected' : '' }}>
+                                        Staff</option>
+                                    <option value="USER" {{ old('roles', $user->roles) == 'USER' ? 'selected' : '' }}>
+                                        User</option>
+                                </select>
+                                @error('roles')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
-                        </div>
-                        <div class="card-footer text-right">
-                            <button class="btn btn-primary">Submit</button>
-                        </div>
+
+                            <!-- Matrix ID Fields -->
+                            <div class="form-group">
+                                <label>Matrix ID</label>
+                                <input type="text" class="form-control @error('matrix_id') is-invalid @enderror"
+                                    name="matrix_id" value="{{ old('matrix_id', $user->dataPribadi->matrix_id ?? '') }}">
+                                @error('matrix_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- First Name Fields -->
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" class="form-control @error('first_name') is-invalid @enderror"
+                                    name="first_name"
+                                    value="{{ old('first_name', $user->dataPribadi->first_name ?? '') }}">
+                                @error('first_name')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Last Name Fields -->
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control @error('last_name') is-invalid @enderror"
+                                    name="last_name" value="{{ old('last_name', $user->dataPribadi->last_name ?? '') }}">
+                                @error('last_name')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Birth Date Field -->
+                            <div class="form-group">
+                                <label>Birth Date</label>
+                                <input type="date" class="form-control @error('birth_date') is-invalid @enderror"
+                                    name="birth_date" value="{{ old('birth_date', $user->dataPribadi->birth_date) }}">
+                                @error('birth_date')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Gender Field -->
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender" class="form-control @error('gender') is-invalid @enderror">
+                                    <option value="man"
+                                        {{ old('gender', $user->dataPribadi->gender ?? '') == 'man' ? 'selected' : '' }}>
+                                        Man</option>
+                                    <option value="woman"
+                                        {{ old('gender', $user->dataPribadi->gender ?? '') == 'woman' ? 'selected' : '' }}>
+                                        Woman</option>
+                                </select>
+                                @error('gender')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Address Field -->
+                            <div class="form-group">
+                                <label>Address</label>
+                                <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $user->dataPribadi->address ?? '') }}</textarea>
+                                @error('address')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Phone Number Field -->
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="number" class="form-control @error('phone_number') is-invalid @enderror"
+                                    name="phone_number"
+                                    value="{{ old('phone_number', $user->dataPribadi->phone_number ?? '') }}">
+                                @error('phone_number')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Departement Field -->
+                            <div class="form-group">
+                                <label>Departement</label>
+                                <textarea name="departement" class="form-control @error('departement') is-invalid @enderror">{{ old('departement', $user->dataPribadi->departement ?? '') }}</textarea>
+                                @error('departement')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Study Program Field -->
+                            <div class="form-group">
+                                <label>Study Program</label>
+                                <textarea name="study_program" class="form-control @error('study_program') is-invalid @enderror">{{ old('study_program', $user->dataPribadi->study_program ?? '') }}</textarea>
+                                @error('study_program')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Entry Year Field -->
+                            <div class="form-group">
+                                <label>Entry Year</label>
+                                <input type="number" class="form-control @error('entry_year') is-invalid @enderror"
+                                    name="entry_year"
+                                    value="{{ old('entry_year', $user->dataPribadi->entry_year ?? '') }}">
+                                @error('entry_year')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="card-footer text-right">
+                                <button type="submit" class="btn btn-primary">Update</button>
+                                <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
+                            </div>
                     </form>
                 </div>
 

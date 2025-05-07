@@ -17,17 +17,14 @@ class UserImageSeeder extends Seeder
             [
                 [
                     'user_id' => 1,
-                    'user_image_path' => 'https://picsum.photos/500/300',
                     'created_at' => now(),
                 ],
                 [
                     'user_id' => 2,
-                    'user_image_path' => 'https://picsum.photos/500/300',
                     'created_at' => now(),
                 ],
                 [
                     'user_id' => 3,
-                    'user_image_path' => 'https://picsum.photos/500/300',
                     'created_at' => now(),
                 ]
             ]

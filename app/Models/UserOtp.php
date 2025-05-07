@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ujian extends Model
+class UserOtp extends Model
 {
     use HasFactory;
+    protected $table = 'users_otp';
     protected $fillable = [
         'user_id',
-        'nilai_angka',
-        'nilai_verbal',
-        'nilai_logika',
-        'hasil',
+        'otp',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -20,12 +20,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
     protected $fillable = [
+        'personal_id',
         'email',
         'password',
-        'first_name',
-        'last_name',
         'username',
-        'phone_number',
         'roles'
     ];
 
@@ -49,6 +47,18 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
+    public function dataPribadi()
+    {
+        return $this->belongsTo(PersonalInformation::class, 'personal_id');
+    }
+    public function kelas()
+    {
+        return $this->hasOne(kelas::class);
+    }
+    public function detailKelas()
+    {
+        return $this->hasMany(kelas_detail::class);
+    }
     public function detailMateri()
     {
         return $this->hasMany(DetailMateri::class);
@@ -56,8 +66,21 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function images()
     {
-        return $this->hasMany(UserImages::class);
+        return $this->hasOne(UserImages::class);
     }
 
+    public function userOtp()
+    {
+        return $this->hasOne(UserOtp::class);
+    }
+
+    public function quizDetail()
+    {
+        return $this->hasMany(QuizDetail::class);
+    }
+    public function quizResult()
+    {
+        return $this->hasMany(QuizResult::class);
+    }
 
 }

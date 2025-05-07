@@ -16,109 +16,51 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Edit Forms</h1>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item"><a href="#">Forms</a></div>
-                    <div class="breadcrumb-item">Soal</div>
-                </div>
+                <h1>Edit Question</h1>
             </div>
-
             <div class="section-body">
-                <h2 class="section-title">Edit User</h2>
-
-
-
-                <div class="card">
-                    <form action="{{ route('users.update', $user) }}" method="POST">
+                <div class="container mt-4">
+                    <form action="{{ route('soal.update', $question->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
-                        <div class="card-header">
-                            <h4>Input Soal</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>Pertanyaan</label>
-                                <input type="text"
-                                    class="form-control @error('name')
-                                is-invalid
-                            @enderror"
-                                    name="name" value="{{ $soal->pertanyaan }}">
-                                @error('name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email"
-                                    class="form-control @error('email')
-                                is-invalid
-                            @enderror"
-                                    name="email" value="{{ $user->email }}">
-                                @error('email')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fas fa-lock"></i>
-                                        </div>
-                                    </div>
-                                    <input type="password"
-                                        class="form-control @error('password')
-                                is-invalid
-                            @enderror"
-                                        name="password">
-                                </div>
-                                @error('password')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="number" class="form-control" name="phone" value="{{ $user->phone }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Roles</label>
-                                <div class="selectgroup w-100">
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="ADMIN" class="selectgroup-input"
-                                            @if ($user->roles == 'ADMIN') checked @endif>
-                                        <span class="selectgroup-button">Admin</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="STAFF" class="selectgroup-input"
-                                            @if ($user->roles == 'STAFF') checked @endif>
-                                        <span class="selectgroup-button">Staff</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="USER" class="selectgroup-input"
-                                            @if ($user->roles == 'USER') checked @endif>
-                                        <span class="selectgroup-button">User</span>
-                                    </label>
 
+                        <!-- Question Field -->
+                        <div class="form-group">
+                            <label for="question">Question</label>
+                            <input type="text" name="question" id="question"
+                                class="form-control @error('question') is-invalid @enderror"
+                                value="{{ old('question', $question->question) }}" required>
+                            @error('question')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
                                 </div>
-                            </div>
+                            @enderror
                         </div>
-                        <div class="card-footer text-right">
-                            <button class="btn btn-primary">Submit</button>
+
+                        <!-- Image Field -->
+                        <div class="form-group">
+                            <label for="quiz_image_path">Image (optional)</label>
+                            @if ($question->quiz_image_path)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $question->quiz_image_path) }}" alt="Quiz Image"
+                                        width="150">
+                                </div>
+                            @endif
+                            <input type="file" name="quiz_image_path" id="quiz_image_path"
+                                class="form-control @error('quiz_image_path') is-invalid @enderror">
+                            @error('quiz_image_path')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Update Question</button>
+                        <a href="{{ route('soal.index') }}" class="btn btn-secondary">Cancel</a>
                     </form>
                 </div>
-
             </div>
         </section>
     </div>
 @endsection
-
-@push('scripts')
-@endpush

@@ -2,9 +2,10 @@
 
 use App\Events\UserUpdated;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UjianController;
 use App\Http\Controllers\Api\MateriController;
-use App\Http\Controllers\UserMateriController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\QuizController;
+use App\Models\Materi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -23,21 +24,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-profile', [AuthController::class, 'changeProfile']);
 
-    // Ujian Routes
-
-    // GET
-    Route::get('/get-hasil-nilai', [UjianController::class, 'hitungNilaiUjianByKategori']);
-    Route::get('/nilai', [UjianController::class, 'getAllNilai']);
-    Route::get('/get-soal-ujian', [UjianController::class, 'getListSoalByKategori']);
-    // POST
-    Route::post('/create-ujian', [UjianController::class, 'createUjian']);
-    Route::post('/exit', [UjianController::class, 'exitUser']);
-    Route::post('/answers', [UjianController::class, 'jawabSoal']);
-
     // Materi Routes
 
+    // POST
+    Route::post('/join-materi', [MateriController::class, 'joinMateri']);
+    Route::post('/generate-materi-user', [MateriController::class, 'generateMateriUser']);
+    Route::post('/create-material', [MateriController::class, 'createMaterial']);
+    // PUT
+    Route::put('/update-status', [MateriController::class, 'updateStatus']);
+
     // GET
-    Route::get('/get-materi/{materi_kategori}', [MateriController::class, 'getMateri']);
+    Route::get('/get-materi/{materi_kategori?}', [MateriController::class, 'getMateri']);
 
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -45,16 +42,45 @@ Route::middleware('auth:sanctum')->group(function () {
     })->middleware(['auth:api', 'throttle:6,1'])->name('verification.send');
 
 
+    // QUIZ Routes
 
-    // PUT
-    Route::put('update-value', [UserMateriController::class, 'updateValueMaterial']);
+    Route::get('/get-quiz-thumbnail', [QuizController::class, 'getQuizThumbnail']);
+
+    // POST
+    Route::post('/create-question', [QuizController::class, 'createQuestion']);
+
+    Route::put('/edit-quizzes', [QuizController::class, 'editQuizzes']);
+    Route::put('/update-answer', [QuizController::class, 'answerQuizzes']);
+    Route::put('/exit-quiz', [QuizController::class, 'exitQuizzes']);
+    Route::put('/show-score-quiz', [QuizController::class, 'calculateQuizzes']);
 
 
+    // KELAS Routes
+    Route::post('/create-class', [KelasController::class, 'createKelas']);
+    Route::post('/join-kelas', [KelasController::class, 'joinKelas']);
+
+    Route::get('/get-class', [KelasController::class, 'getKelas']);
+
+    Route::post('/join-quizzes', [QuizController::class, 'joinQuizzes']);
+    Route::post('/generate-quizzes', [QuizController::class, 'generateQuizzes']);
 });
+// Quiz Routes
+
+// GET
+Route::get('/get-question', [QuizController::class, 'getQuestion']);
+
+// Materi Routes
 // POST
+Route::post('/generate-materi', [MateriController::class, 'generateMateri']);
+// GET
+
+
+// POST
+// Auth Routes
+Route::post('/send-otp', [AuthController::class, 'sendResetOTP']);
+Route::post('/reset-password', [AuthController::class, 'sendResetPassword']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('assign-materi', [UserMateriController::class, 'store']);
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::find($id);

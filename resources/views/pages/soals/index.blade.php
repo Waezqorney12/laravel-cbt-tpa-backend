@@ -9,93 +9,75 @@
 
 @section('main')
     <div class="main-content">
-        <section class="section">
-            <div class="section-header">
-                <h1>Bank Soal - Tugas 2 Waezqorney Huanfareyzo</h1>
-                <div class="section-header-button">
-                    <a href="{{ route('soal.create') }}" class="btn btn-primary">Add Soal</a>
-                </div>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item"><a href="#">Soal</a></div>
-                    <div class="breadcrumb-item">All Soal</div>
-                </div>
-            </div>
-            <div class="section-body">
-                <div class="row">
-                    <div class="row">
-                        @include('layouts.alert')
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Questions</h4>
+                        <a href="{{ route('users.create') }}" class="btn btn-primary">Add Question</a>
                     </div>
-                </div>
-                <h2 class="section-title">Users</h2>
-                <p class="section-lead">
-                    You can manage all soal, such as editing, deleting and more.
-                </p>
-
-
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>All Soal</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="float-left">
-                                    <select class="form-control selectric">
-                                        <option>Action For Selected</option>
-                                        <option>Move to Draft</option>
-                                        <option>Move to Pending</option>
-                                        <option>Delete Pemanently</option>
-                                    </select>
+                    <div class="card-body">
+                        <div class="float-right">
+                            <form method="GET" action="{{ route('soal.index') }}">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search by question"
+                                        name="pertanyaan" value="{{ request('pertanyaan') }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                    </div>
                                 </div>
-                                <div class="float-right">
-                                    <form method="GET" action="{{ route('soal.index') }}">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search"
-                                                name="pertanyaan">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="clearfix mb-3"></div>
-
-                                <div class="table-responsive">
-                                    <table class="table-striped table">
+                            </form>
+                        </div>
+                        <div class="clearfix mb-3"></div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Number</th>
+                                        <th>Question</th>
+                                        <th>Image</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($questions as $question)
                                         <tr>
-                                            <th>id</th>
-                                            <th>soal</th>
-                                            <th>Jawaban A</th>
-                                            <th>Jawaban B</th>
-                                            <th>Jawaban C</th>
-                                            <th>Jawaban D</th>
-
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $question->question }}</td>
+                                            <td>
+                                                @if ($question->quiz_image_path)
+                                                    <img src="{{ asset('storage/' . $question->quiz_image_path) }}"
+                                                        alt="Quiz Image" width="100">
+                                                @else
+                                                    No Image
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('soal.edit', $question->id) }}"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <form action="{{ route('soal.destroy', $question->id) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                </form>
+                                            </td>
                                         </tr>
-                                        @foreach ($soals as $soal)
-                                            <tr>
-                                                <td>{{ $soal->id }}</td>
-                                                <td>{{ $soal->pertanyaan }}</td>
-                                                <td>{{ $soal->jawaban_a }}</td>
-                                                <td>{{ $soal->jawaban_b }}</td>
-                                                <td>{{ $soal->jawaban_c }}</td>
-                                                <td>{{ $soal->jawaban_d }}</td>
-
-                                            </tr>
-                                        @endforeach
-
-                                    </table>
-                                </div>
-                                <div class="float-right">
-                                    {{ $soals->withQueryString()->links() }}
-                                </div>
-                            </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center">No questions found.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            {{ $questions->links() }}
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 @endsection
 

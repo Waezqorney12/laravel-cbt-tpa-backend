@@ -12,9 +12,10 @@ return new class extends Migration {
     {
         Schema::create('materi', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('class_id')->constrained('kelas')->onDelete('cascade');
             $table->string('materi_title');
             $table->text('materi_description');
-            $table->string('materi_kategori');
+            $table->enum('materi_kategori', ['Logika', 'Verbal', 'Numeric']);
             $table->timestamps();
         });
     }

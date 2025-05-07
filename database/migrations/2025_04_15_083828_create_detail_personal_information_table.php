@@ -10,15 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ujians', function (Blueprint $table) {
+        Schema::create('detail_personal_information', function (Blueprint $table) {
             $table->id();
-
-            //user_id
+            $table->foreignId('personal_id')->constrained('personal_information')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->integer('nilai_angka')->nullable();
-            $table->integer('nilai_verbal')->nullable();
-            $table->integer('nilai_logika')->nullable();
-            $table->string('hasil')->nullable();
+            $table->enum('status', ['graduate', 'undergraduate']);
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('ujians');
+        Schema::dropIfExists('detail_personal_information');
     }
 };

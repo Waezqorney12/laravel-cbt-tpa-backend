@@ -16,13 +16,22 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'personal_id' => $this->personal_id,
+            'matrix' => $this->dataPribadi->matrix_id,
             'email' => $this->email,
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
             'username' => $this->username,
-            'phone_number' => $this->phone_number,
+            'first_name' => $this->dataPribadi->first_name,
+            'last_name' => $this->dataPribadi->last_name,
+            'full_name' => $this->dataPribadi->full_name,
+            'birth_date' => $this->dataPribadi->birth_date,
+            'gender' => $this->dataPribadi->gender,
+            'address' => $this->dataPribadi->address,
+            'phone_number' => $this->dataPribadi->phone_number,
+            'departement' => $this->dataPribadi->departement,
+            'study_program' => $this->dataPribadi->study_program,
+            'entry_year' => $this->dataPribadi->entry_year,
             'roles' => $this->roles,
-            'image' => optional($this->images->first())->user_image_path,
+            'image' => optional($this->images)->user_image_path,
         ];
     }
 }

@@ -10,6 +10,13 @@ class DetailMateri extends Model
     use HasFactory;
 
     protected $table = 'detail_materi';
+
+    protected $fillable = [
+        'user_id',
+        'materi_id',
+        'status',
+    ];
+
     public function materi()
     {
         return $this->belongsTo(Materi::class);

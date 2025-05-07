@@ -15,16 +15,16 @@ class MateriResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "materi_id" => $this->materi_id,
+            "materi_id" => $this->id,
+            "materi_kategori" => $this->materi_kategori,
             "status" => $this->status,
             "created_at" => $this->created_at,
+            "updated_at" => $this->updated_at,
 
             "materi" => [
-                "materi_image" => optional($this->materi->image->first())->materi_image_path,
-                "materi_title" => $this->materi->materi_title,
-                "materi_description" => $this->materi->materi_description,
-                "materi_kategori" => $this->materi->materi_kategori,
-
+                "materi_title" => $this->materi_title,
+                "materi_description" => $this->materi_description,
+                "materi_image" => optional($this->image->first())->materi_image_path,
             ]
 
         ];

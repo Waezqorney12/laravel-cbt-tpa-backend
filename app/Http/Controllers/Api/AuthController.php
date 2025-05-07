@@ -5,22 +5,156 @@ namespace App\Http\Controllers\Api;
 use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\DetailMateri;
+use App\Models\PersonalInformation;
 use App\Models\User;
+use App\Models\UserImages;
+use App\Models\UserOtp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+
+    public function generateOtpNumber($length = 4)
+    {
+        $otp = '';
+        for ($i = 0; $i < $length; $i++) {
+            $otp .= mt_rand(0, 9);
+        }
+        return $otp;
+    }
+
+    private function generateUniqueUsername()
+    {
+        $maxAttempts = 5;
+        $attempt = 0;
+        $maxLength = 10;
+
+        do {
+            $randomString = Str::random($maxLength); // Generate a random 3-digit number
+            $username = $randomString;
+            $attempt++;
+        } while (User::where('username', $username)->exists() && $attempt < $maxAttempts);
+
+        if ($attempt == $maxAttempts) {
+            // Fallback to a hash-based username if too many attempts fail
+            $username = substr(sha1(uniqid('', true)), 0, $maxLength);
+        }
+
+        return $username;
+    }
+
+    public function sendResetOTP(Request $request): JsonResponse
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'email' => 'required|email'
+            ]);
+            if ($validate->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validate->errors()
+                ], 400);
+            }
+            $validateData = $validate->validate();
+            $user = User::where('email', $validateData['email'])->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => '404 not found',
+                    'errors' => 'User not found'
+                ], 404);
+            }
+            $otp = $this->generateOtpNumber();
+            UserOtp::create([
+                'user_id' => $user->id,
+                'otp' => $otp
+            ]);
+            Mail::raw('Your new OTP number is ' . $otp, function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('OTP Code');
+            });
+            return response()->json([
+                'message' => 'OTP sent successfully',
+                'data' => 'Please check your email'
+            ], 200);
+
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to send OTP',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    public function sendResetPassword(Request $request): JsonResponse
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'otp' => 'required|string|max:4',
+            ]);
+            if ($validate->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validate->errors()
+                ], 400);
+            }
+            $validateData = $validate->validate();
+            $userOtp = UserOtp::with('user')->where(
+                'otp',
+                $validateData['otp']
+            )->first();
+            if (!$userOtp) {
+                return response()->json([
+                    'message' => '404 not found',
+                    'errors' => 'Invalid not found'
+                ], 404);
+            }
+            $newPassword = Str::random(8);
+            $hashedPassword = Hash::make($newPassword);
+
+            $user = $userOtp->user;
+            $user->update(['password' => $hashedPassword]);
+
+            $userOtp->update(['otp' => null]);
+
+            Mail::raw('Your new password is ' . $newPassword, function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('New Password');
+            });
+
+            return response()->json([
+                'message' => 'Success to send reset password',
+                'data' => 'Please check your email'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to send reset password',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
     public function getUser(Request $request): JsonResponse
     {
         try {
-            $user = User::with('images')->where('id', $request->user()->id)->first();
+            $user = User::with(['images', 'dataPribadi'])
+                ->where('id', $request->user()->id)
+                ->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found',
+                ], 404);
+            }
+
             return response()->json([
                 'message' => 'User data retrieved successfully',
                 'data' => new UserResource($user)
@@ -55,22 +189,33 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         try {
-            $validateData = Validator::make($request->all(), [
-                'username' => 'required|string|max:10|unique:users,username',
+            $validatorData = Validator::make($request->all(), [
+
+                'matrix_id' => 'required|string|exists:personal_information,matrix_id',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:8'
             ]);
-            if ($validateData->fails()) {
+            if ($validatorData->fails()) {
                 return response()->json([
                     'message' => 'Validation failed',
-                    'errors' => $validateData->errors()
+                    'errors' => $validatorData->errors()
                 ], 400);
             }
+            $data = $validatorData->validate();
 
+            $personalInformation = PersonalInformation::where('matrix_id', $data['matrix_id'])->first();
+            if (!$personalInformation) {
+                return response()->json([
+                    'message' => 'Matrix ID not found in personal information'
+                ], 404);
+            }
+            $personalId = $personalInformation->id;
+            $username = $this->generateUniqueUsername();
             $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'personal_id' => $personalId,
+                'email' => $data['email'],
+                'username' => $username,
+                'password' => Hash::make($data['password']),
                 'roles' => 'USER'
             ]);
 
@@ -161,20 +306,25 @@ class AuthController extends Controller
                 return response()->json([
                     'message' => 'Validation failed',
                     'errors' => $validate->errors()
-                ], 400);
+                ], status: 400);
             }
 
             $validatedData = $validate->validate();
-
             $user = $request->user();
-            $user->update($validatedData);
+
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imagePath = $image->store('profile_images', 'public'); // Store the image in the 'public/profile_images' directory
 
-                $validatedData['image'] = $imagePath;
+                $userImage = UserImages::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['user_image_path' => $imagePath]
+                );
+                $validatedData['image'] = $userImage->user_image_path;
             }
+
+            $user->update($validatedData);
 
             $updatedUser = User::with('images')->where('id', $user->id)->first();
 
@@ -188,6 +338,8 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+
     public function destroy(string $id)
     {
     }
