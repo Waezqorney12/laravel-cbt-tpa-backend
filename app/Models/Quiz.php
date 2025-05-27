@@ -18,6 +18,11 @@ class Quiz extends Model
         'category',
     ];
 
+
+    public function quizClass()
+    {
+        return $this->belongsTo(kelas::class, 'class_id');
+    }
     public function quizDetails()
     {
         return $this->hasMany(QuizDetail::class, );

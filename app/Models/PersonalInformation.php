@@ -28,4 +28,9 @@ class PersonalInformation extends Model
     {
         return $this->hasOne(User::class);
     }
+
+    public function detailPersonalInformation()
+    {
+        return $this->hasOne(DetailPersonalInformation::class);
+    }
 }

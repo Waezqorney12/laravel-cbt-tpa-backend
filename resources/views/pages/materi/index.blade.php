@@ -55,7 +55,7 @@
                                             <td>{{ $item->class->class_name ?? 'N/A' }}</td>
                                             <td>
                                                 @if ($item->image->isNotEmpty())
-                                                    <img src="{{ asset('storage/' . $item->image->first()->materi_image_path) }}"
+                                                    <img src="{{ Storage::disk('s3')->url($item->image->first()->materi_image_path) }}"
                                                         alt="Materi Image" width="100">
                                                 @else
                                                     No Image

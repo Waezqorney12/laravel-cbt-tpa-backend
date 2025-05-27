@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MateriController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\ReportController;
 use App\Models\Materi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,8 @@ use App\Models\User;
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/send-report', [ReportController::class, 'SendReport']);
+    Route::get('/view-report-history', [ReportController::class, 'ViewHistoryReport']);
     // Auth Routes
 
     // GET
@@ -35,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // GET
     Route::get('/get-materi/{materi_kategori?}', [MateriController::class, 'getMateri']);
+
 
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -63,24 +67,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/join-quizzes', [QuizController::class, 'joinQuizzes']);
     Route::post('/generate-quizzes', [QuizController::class, 'generateQuizzes']);
+
+    Route::post('/upload-image', [AuthController::class, 'uploadImage']);
 });
 // Quiz Routes
 
 // GET
 Route::get('/get-question', [QuizController::class, 'getQuestion']);
 
-// Materi Routes
-// POST
-Route::post('/generate-materi', [MateriController::class, 'generateMateri']);
-// GET
-
-
 // POST
 // Auth Routes
 Route::post('/send-otp', [AuthController::class, 'sendResetOTP']);
 Route::post('/reset-password', [AuthController::class, 'sendResetPassword']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/sign-in', [AuthController::class, 'signIn']);
+Route::post('/sign-up', [AuthController::class, 'register']);
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::find($id);

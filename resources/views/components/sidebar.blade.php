@@ -10,7 +10,8 @@
             </li>
 
             <li>
-                <a href="{{ route('users.index') }}" class="nav-link"><i class="fas fa-users"></i><span>Users</span></a>
+                <a href="{{ route('users.index') }}" class="nav-link"><i class="fas fa-users"></i><span>Personal
+                        Information</span></a>
             </li>
 
             <li class="nav-item dropdown">
@@ -34,6 +35,10 @@
             <li>
                 <a href="{{ route('kelas.index') }}" class="nav-link"><i
                         class="fas fa-chalkboard"></i><span>Class</span></a>
+            </li>
+            <li>
+                <a href="{{ route('reports.index') }}" class="nav-link"><i
+                        class="fas fa-file-alt"></i><span>Reports</span></a>
             </li>
     </aside>
 </div>

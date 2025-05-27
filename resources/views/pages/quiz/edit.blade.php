@@ -1,142 +1,204 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Soal')
+@section('title', 'Edit Quiz')
 
 @push('style')
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
 @endpush
 
 @section('main')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Edit Materi</h1>
+                <h1>Edit Quiz</h1>
+                <div class="section-header-breadcrumb">
+                    <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
+                    <div class="breadcrumb-item"><a href="{{ route('quiz.index') }}">Quizzes</a></div>
+                    <div class="breadcrumb-item">Edit Quiz</div>
+                </div>
             </div>
+
             <div class="section-body">
-                <div class="container mt-4">
-                    <form action="{{ route('materi.update', $materi->id) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
+                <form action="{{ route('quiz.update', $quiz->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                        <!-- Class Dropdown -->
-                        <div class="form-group">
-                            <label for="class_id">Class</label>
-                            <select name="class_id" id="class_id" class="form-control select2">
-                                <option value="" disabled>Select Class</option>
-                                @foreach ($classes as $class)
-                                    <option value="{{ $class->id }}"
-                                        {{ $materi->class_id == $class->id ? 'selected' : '' }}>
-                                        {{ $class->class_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('class_id')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                    <!-- Class Dropdown -->
+                    <div class="form-group">
+                        <label for="class_id">Class</label>
+                        <select name="class_id" id="class_id" class="form-control select2">
+                            <option value="" disabled>Select Class</option>
+                            @foreach ($classes as $class)
+                                <option value="{{ $class->id }}" {{ $quiz->class_id == $class->id ? 'selected' : '' }}>
+                                    {{ $class->class_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('class_id')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title" class="form-control"
+                            value="{{ old('title', $quiz->title) }}" required>
+                        @error('title')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" class="form-control" rows="5">{{ old('description', $quiz->description) }}</textarea>
+                        @error('description')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select name="type" id="type" class="form-control select2" required>
+                            <option value="choice" {{ $quiz->type == 'choice' ? 'selected' : '' }}>Multiple Choice</option>
+                            <option value="essay" {{ $quiz->type == 'essay' ? 'selected' : '' }}>Essay</option>
+                        </select>
+                        @error('type')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <div class="selectgroup w-100">
+                            <label class="selectgroup-item">
+                                <input type="radio" name="category" value="Logika" class="selectgroup-input"
+                                    {{ $quiz->category == 'Logika' ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Logika</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" name="category" value="Verbal" class="selectgroup-input"
+                                    {{ $quiz->category == 'Verbal' ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Verbal</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" name="category" value="Numeric" class="selectgroup-input"
+                                    {{ $quiz->category == 'Numeric' ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Numeric</span>
+                            </label>
                         </div>
+                        @error('category')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        <!-- Materi Title -->
-                        <div class="form-group">
-                            <label for="materi_title">Title</label>
-                            <input type="text" name="materi_title" id="materi_title" class="form-control"
-                                value="{{ old('materi_title', $materi->materi_title) }}" required>
-                            @error('materi_title')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <!-- Thumbnail -->
+                    <div class="form-group">
+                        <label for="image_thumbnail">Thumbnail</label>
+                        <input type="file" name="image_thumbnail" id="image_thumbnail" class="form-control">
+                        @if ($quiz->image_thumbnail_path)
+                            <small>Current Thumbnail:</small>
+                            <img src="{{ Storage::disk('s3')->url($quiz->image_thumbnail_path) }}" alt="Thumbnail"
+                                class="img-fluid mt-2" style="max-width: 200px;">
+                        @endif
+                        @error('image_thumbnail')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        <!-- Materi Description -->
-                        <div class="form-group">
-                            <label for="materi_description">Description</label>
-                            <textarea name="materi_description" id="materi_description" class="form-control" rows="5" required>{{ old('materi_description', $materi->materi_description) }}</textarea>
-                            @error('materi_description')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <!-- Questions -->
 
-                        <!-- Materi Category -->
-                        <div class="form-group">
-                            <label class="form-label">Category</label>
-                            <div class="selectgroup w-100">
-                                <label class="selectgroup-item">
-                                    <input type="radio" name="materi_kategori" value="Logika" class="selectgroup-input"
-                                        {{ old('materi_kategori', $materi->materi_kategori) == 'Logika' ? 'checked' : '' }}>
-                                    <span class="selectgroup-button">Logika</span>
-                                </label>
-                                <label class="selectgroup-item">
-                                    <input type="radio" name="materi_kategori" value="Verbal" class="selectgroup-input"
-                                        {{ old('materi_kategori', $materi->materi_kategori) == 'Verbal' ? 'checked' : '' }}>
-                                    <span class="selectgroup-button">Verbal</span>
-                                </label>
-                                <label class="selectgroup-item">
-                                    <input type="radio" name="materi_kategori" value="Numeric" class="selectgroup-input"
-                                        {{ old('materi_kategori', $materi->materi_kategori) == 'Numeric' ? 'checked' : '' }}>
-                                    <span class="selectgroup-button">Numeric</span>
-                                </label>
-                            </div>
-                            @error('materi_kategori')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-
-                        <!-- Existing Images -->
-                        <div class="form-group">
-                            <label>Existing Images</label>
-                            <div class="row">
-                                @if ($materi->image->isNotEmpty())
-                                    @foreach ($materi->image as $image)
-                                        <div class="col-md-3 mb-3">
-                                            <img src="{{ asset('storage/' . $image->materi_image_path) }}"
-                                                alt="Materi Image" class="img-thumbnail">
-                                            <div class="mt-2">
-                                                <form action="{{ route('materi.image.destroy', $image->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Are you sure you want to delete this image?')">Delete</button>
-                                                </form>
+                    <div class="form-group">
+                        <label class="form-label fw-bold">Questions</label>
+                        <div id="questions-container">
+                            @if ($quiz->type === 'choice')
+                                @foreach ($quiz->quizChoices as $index => $choice)
+                                    <div class="question-item mb-4 p-3 border rounded bg-light shadow-sm">
+                                        <h5 class="fw-bold text-primary">Question {{ $index + 1 }}</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Question</label>
+                                            <select name="questions[{{ $index }}][quiz_question_id]"
+                                                class="form-select select2">
+                                                <option value="" disabled>Select Question</option>
+                                                @foreach ($availableQuestions as $question)
+                                                    <option value="{{ $question->id }}"
+                                                        {{ $choice->quiz_question_id == $question->id ? 'selected' : '' }}>
+                                                        {{ $question->question }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Choice A</label>
+                                                <input type="text" name="questions[{{ $index }}][choice_a]"
+                                                    value="{{ $choice->choice_a }}" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Choice B</label>
+                                                <input type="text" name="questions[{{ $index }}][choice_b]"
+                                                    value="{{ $choice->choice_b }}" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Choice C</label>
+                                                <input type="text" name="questions[{{ $index }}][choice_c]"
+                                                    value="{{ $choice->choice_c }}" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Choice D</label>
+                                                <input type="text" name="questions[{{ $index }}][choice_d]"
+                                                    value="{{ $choice->choice_d }}" class="form-control" required>
                                             </div>
                                         </div>
-                                    @endforeach
-                                @else
-                                    <div class="col-12">
-                                        <p class="text-muted">No Images</p>
+                                        <div class="mb-3">
+                                            <label class="form-label">Correct Answer</label>
+                                            <input type="text" name="questions[{{ $index }}][correct_answer]"
+                                                value="{{ $choice->correct_answer }}" class="form-control" required>
+                                        </div>
                                     </div>
-                                @endif
-                            </div>
+                                @endforeach
+                            @elseif ($quiz->type === 'essay')
+                                @foreach ($quiz->quizEssays as $index => $essay)
+                                    <div class="question-item mb-4 p-3 border rounded bg-light shadow-sm">
+                                        <h5 class="fw-bold text-primary">Essay Question {{ $index + 1 }}</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Question</label>
+                                            <select name="questions[{{ $index }}][quiz_question_id]"
+                                                class="form-select select2">
+                                                <option value="" disabled>Select Question</option>
+                                                @foreach ($availableQuestions as $question)
+                                                    <option value="{{ $question->id }}"
+                                                        {{ $essay->quiz_question_id == $question->id ? 'selected' : '' }}>
+                                                        {{ $question->question }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Correct Answer</label>
+                                            <textarea name="questions[{{ $index }}][correct_answer]" class="form-control" rows="3" required>{{ $essay->correct_answer }}</textarea>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
+                    </div>
 
-                        <!-- Upload New Images -->
-                        <div class="form-group">
-                            <label for="materi_images">Upload New Images</label>
-                            <input type="file" name="materi_images[]" id="materi_images" class="form-control" multiple>
-                            @error('materi_images.*')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a href="{{ route('materi.index') }}" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+                    <!-- Submit Button -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Update Quiz</button>
+                        <a href="{{ route('quiz.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
             </div>
         </section>
     </div>
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script>
         $(document).ready(function() {

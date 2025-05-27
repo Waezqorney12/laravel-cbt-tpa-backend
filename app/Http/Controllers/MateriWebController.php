@@ -54,11 +54,18 @@ class MateriWebController extends Controller
         // Handle image uploads
         if ($request->hasFile('materi_images')) {
             foreach ($request->file('materi_images') as $image) {
-                $path = $image->store('materi_images', 'public');
-                MateriImage::create([
-                    'materi_id' => $materi->id,
-                    'materi_image_path' => $path,
-                ]);
+                try {
+                    $filename = time() . '_' . $image->getClientOriginalName();
+                    $path = $image->storeAs('materi_images', $filename, 's3');
+                    Storage::disk('s3')->setVisibility($path, 'public');
+
+                    MateriImage::create([
+                        'materi_id' => $materi->id,
+                        'materi_image_path' => $path,
+                    ]);
+                } catch (\Throwable $th) {
+                    echo ($th->getMessage());
+                }
             }
         }
 
@@ -95,8 +102,10 @@ class MateriWebController extends Controller
         // Handle image uploads
         if ($request->hasFile('materi_images')) {
             foreach ($request->file('materi_images') as $image) {
-                $path = $image->store('materi_images', 'public');
-                MateriImage::create([
+                $path = $image->store('materi_images', 's3');
+                Storage::disk('s3')->setVisibility($path, 'public');
+                $materiImage = MateriImage::where('materi_id', $id);
+                $materiImage->update([
                     'materi_id' => $materi->id,
                     'materi_image_path' => $path,
                 ]);
@@ -110,12 +119,13 @@ class MateriWebController extends Controller
     {
         $materi = Materi::findOrFail($id);
 
-        // Delete related images
-        foreach ($materi->images as $image) {
-            if (Storage::exists('public/' . $image->materi_image_path)) {
-                Storage::delete('public/' . $image->materi_image_path);
+        if ($materi->images && $materi->images->isNotEmpty()) {
+            foreach ($materi->images as $image) {
+                if (Storage::disk('s3')->exists($image->materi_image_path)) {
+                    Storage::disk('s3')->delete($image->materi_image_path);
+                }
+                $image->delete();
             }
-            $image->delete();
         }
 
         // Delete the materi

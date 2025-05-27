@@ -20,19 +20,7 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 UserImageSeeder::class,
                 PersonalInformationDetailSeeder::class,
-
-
-                // UjianSeeder::class,
-                // UjianSoalListSeeder::class,
-
-
-
                 QuizQuestionSeeder::class,
-                //QuizSeeder::class,
-                //QuizChoiceSeeder::class,
-                //QuizEssaySeeder::class,
-                //QuizDetailSeeder::class,
-                //QuizResultSeeder::class,
 
             ]
         );

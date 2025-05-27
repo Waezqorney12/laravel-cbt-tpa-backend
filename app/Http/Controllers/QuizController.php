@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Reverb\Loggers\Log;
 
@@ -56,7 +57,8 @@ class QuizController extends Controller
             $imagePath = null;
             if ($request->hasFile('quiz_image_path')) {
                 $image = $request->file('quiz_image_path');
-                $imagePath = $image->store('question_images', 'public');
+                $imagePath = $image->store('question_images', 's3');
+                Storage::disk('s3')->setVisibility($imagePath, 'public');
             }
 
             $question = QuizQuestion::create([
@@ -138,7 +140,7 @@ class QuizController extends Controller
             ->where('quiz_id', $quizId)
             ->update([
                 'score'=>$totalNilai,
-                'status' => $totalNilai > 70 ? 'pass' : 'fails'
+                'status' => $totalNilai > 70 ? 'pass' : 'fail'
             ]);
             DB::commit();
             return response()->json([
@@ -268,7 +270,7 @@ class QuizController extends Controller
             $userId = auth()->check() ? auth()->user()->id : null;
 
 
-            $existingClass = kelas::where('id', $data['class_id'])->firstOrFail();
+            kelas::where('id', $data['class_id'])->firstOrFail();
             $quizzes = Quiz::where('class_id', $data['class_id'])
             ->when($filter, function ($query) use ($filter) {
                     return $query->whereRaw("LOWER(title) LIKE ?", ["%" . strtolower($filter) . "%"]);
@@ -292,6 +294,7 @@ class QuizController extends Controller
                     'description' => $quiz->description,
                     'type' => $quiz->type,
                     'category' => $quiz->category,
+                    'score' => $quiz->quizResults->pluck('score')->first(),
                     'isDone' => $isDone
                 ];
             });
@@ -411,6 +414,8 @@ class QuizController extends Controller
                 'quiz_id' => $quiz->quiz_id,
                 'user_id' => $userId,
                 'quiz_question_id' => $quiz->quiz_question_id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ])->toArray();
 
             QuizDetail::insert($quizDetails);
@@ -513,9 +518,11 @@ class QuizController extends Controller
                     'message' => 'Class not found'
                 ], status: 404);
             }
+
             if ($request->hasFile('image_thumbnail_path')) {
                 $image = $request->file('image_thumbnail_path');
-                $response['image_thumbnail_path'] = $image->store('quiz_thumbnail', 'public');
+                $response['image_thumbnail_path'] = $image->store('quiz_thumbnail', 's3');
+                Storage::disk('s3')->setVisibility($response['image_thumbnail_path'], 'public');
             }
             $quiz = Quiz::create(
                 [

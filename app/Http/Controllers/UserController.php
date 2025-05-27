@@ -8,14 +8,15 @@ use App\Models\PersonalInformation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-
-
     public function login(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -42,107 +43,117 @@ class UserController extends Controller
                 return redirect()->back()->withErrors(['email' => 'Access restricted to admin users only.']);
             }
 
-            auth()->login($user); // Log the user in
+            Auth::guard('web')->login($user);
             return redirect()->route('home'); // Redirect to the dashboard
         }
     }
-
+    /**
+     * Display a listing of the personal information.
+     */
     public function index(Request $request)
     {
-        $users = DB::table('users')
-            ->leftJoin('personal_information', 'users.personal_id', '=', 'personal_information.id')
-            ->select(
-                'users.id',
-                'users.email',
-                'users.username',
-                'users.roles',
-                'personal_information.matrix_id',
-                'personal_information.first_name',
-                'personal_information.last_name',
-                'personal_information.birth_date',
-                'personal_information.gender',
-                'personal_information.address',
-                'personal_information.departement',
-                'personal_information.study_program',
-                'personal_information.entry_year',
-                'personal_information.phone_number',
-            )
-            ->whereIn('users.roles', ['STAFF', 'USER']) // Exclude ADMIN role
+        $personalInformation = PersonalInformation::query()
             ->when($request->input('name'), function ($query, $name) {
-                return $query->where(DB::raw("CONCAT(personal_information.first_name, ' ', personal_information.last_name)"), 'like', '%' . $name . '%');
+                return $query->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$name%"]);
             })
-            ->orderBy('users.id', 'asc')
+            ->orderBy('id', 'asc')
             ->paginate(10);
 
-        return view('pages.users.index', compact('users'));
+        return view('pages.users.index', compact('personalInformation'));
     }
 
+    /**
+     * Show the form for creating new personal information.
+     */
     public function create()
     {
         return view('pages.users.create');
     }
-    public function store(StoreUserRequest $request)
-    {
-        $data = $request->all();
-        $data['password'] = Hash::make($request->password);
-        User::create($data);
-        return redirect()->route('users.index')->with('success', 'User successfully created');
 
-    }
-    public function edit($id)
+    /**
+     * Store a newly created personal information in storage.
+     */
+    public function store(Request $request)
     {
-        $user = User::with('dataPribadi')->findOrFail($id);
-        return view('pages.users.edit', compact('user'));
-    }
-    public function update(Request $request, $id)
-    {
-        $user = User::with('dataPribadi')->findOrFail($id);
-
         $validatedData = $request->validate([
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'username' => 'required|string|max:10|unique:users,username,' . $user->id,
-            'roles' => 'required|in:ADMIN,STAFF,USER',
-            'matrix_id' => 'required|string|unique:personal_information,matrix_id,' . $user->dataPribadi->id,
+            'matrix_id' => 'required|string|unique:personal_information,matrix_id',
             'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
             'birth_date' => 'required|date',
             'gender' => 'required|in:woman,man',
             'address' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:15',
+            'phone_number' => [
+                'required',
+                'regex:/^\+\d{1,3}\d{8,11}$/',
+                'max:14',
+            ],
             'departement' => 'required|string|max:255',
             'study_program' => 'required|string|max:255',
             'entry_year' => 'required|integer',
         ]);
 
-        // Only update user fields if changed
-        $user->update([
-            'email' => $validatedData['email'],
-            'username' => $validatedData['username'],
-            'roles' => $validatedData['roles'],
-        ]);
+        // Handle nullable last name
+        $validatedData['full_name'] = $validatedData['last_name']
+            ? $validatedData['first_name'] . ' ' . $validatedData['last_name']
+            : $validatedData['first_name'];
 
-        // Only update personal_information fields if changed
-        $user->dataPribadi->update([
-            'matrix_id' => $validatedData['matrix_id'],
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'full_name' => $validatedData['first_name'] . ' ' . $validatedData['last_name'],
-            'birth_date' => $validatedData['birth_date'],
-            'gender' => $validatedData['gender'],
-            'address' => $validatedData['address'],
-            'phone_number' => $validatedData['phone_number'],
-            'departement' => $validatedData['departement'],
-            'study_program' => $validatedData['study_program'],
-            'entry_year' => $validatedData['entry_year'],
-        ]);
+        PersonalInformation::create($validatedData);
 
-        return redirect()->route('users.index')->with('success', 'User successfully updated.');
+        return redirect()->route('users.index')->with('success', 'Personal information successfully created.');
     }
 
-
-    public function destroy(User $user)
+    /**
+     * Show the form for editing the specified personal information.
+     */
+    public function edit($id)
     {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User successfully deleted');
+        $personalInformation = PersonalInformation::findOrFail($id);
+        return view('pages.users.edit', compact('personalInformation'));
+    }
+
+    /**
+     * Update the specified personal information in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $personalInformation = PersonalInformation::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'matrix_id' => 'required|string|unique:personal_information,matrix_id,' . $personalInformation->id,
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'birth_date' => 'required|date',
+            'gender' => 'required|in:woman,man',
+            'address' => 'required|string|max:255',
+            'phone_number' => [
+                'required',
+                'regex:/^\+\d{1,3}\d{8,11}$/',
+                'max:14',
+                'unique:personal_information,phone_number,' . $personalInformation->id,
+            ],
+            'departement' => 'required|string|max:255',
+            'study_program' => 'required|string|max:255',
+            'entry_year' => 'required|integer',
+        ]);
+
+        // Handle nullable last name
+        $validatedData['full_name'] = $validatedData['last_name']
+            ? $validatedData['first_name'] . ' ' . $validatedData['last_name']
+            : $validatedData['first_name'];
+
+        $personalInformation->update($validatedData);
+
+        return redirect()->route('users.index')->with('success', 'Personal information successfully updated.');
+    }
+
+    /**
+     * Remove the specified personal information from storage.
+     */
+    public function destroy($id)
+    {
+        $personalInformation = PersonalInformation::findOrFail($id);
+        $personalInformation->delete();
+
+        return redirect()->route('users.index')->with('success', 'Personal information successfully deleted.');
     }
 }

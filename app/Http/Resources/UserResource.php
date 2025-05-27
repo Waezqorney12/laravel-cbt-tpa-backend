@@ -17,7 +17,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'personal_id' => $this->personal_id,
-            'matrix' => $this->dataPribadi->matrix_id,
+            'matrix_id' => $this->dataPribadi->matrix_id,
             'email' => $this->email,
             'username' => $this->username,
             'first_name' => $this->dataPribadi->first_name,
@@ -31,7 +31,7 @@ class UserResource extends JsonResource
             'study_program' => $this->dataPribadi->study_program,
             'entry_year' => $this->dataPribadi->entry_year,
             'roles' => $this->roles,
-            'image' => optional($this->images)->user_image_path,
+            'user_image_path' => optional($this->images)->user_image_path,
         ];
     }
 }
