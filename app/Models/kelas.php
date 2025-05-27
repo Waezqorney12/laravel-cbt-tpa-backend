@@ -33,4 +33,9 @@ class kelas extends Model
     {
         return $this->hasMany(kelas_detail::class);
     }
+
+    public function kelas()
+    {
+        return $this->hasMany(Quiz::class);
+    }
 }

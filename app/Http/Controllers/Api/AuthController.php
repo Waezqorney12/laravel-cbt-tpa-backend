@@ -6,6 +6,7 @@ use App\Events\UserUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\DetailMateri;
+use App\Models\DetailPersonalInformation;
 use App\Models\PersonalInformation;
 use App\Models\User;
 use App\Models\UserImages;
@@ -16,8 +17,10 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use PDO;
 
 class AuthController extends Controller
 {
@@ -188,6 +191,7 @@ class AuthController extends Controller
 
     public function register(Request $request): JsonResponse
     {
+
         try {
             $validatorData = Validator::make($request->all(), [
 
@@ -202,7 +206,6 @@ class AuthController extends Controller
                 ], 400);
             }
             $data = $validatorData->validate();
-
             $personalInformation = PersonalInformation::where('matrix_id', $data['matrix_id'])->first();
             if (!$personalInformation) {
                 return response()->json([
@@ -217,6 +220,16 @@ class AuthController extends Controller
                 'username' => $username,
                 'password' => Hash::make($data['password']),
                 'roles' => 'USER'
+            ]);
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found, failed to create data'
+                ]);
+            }
+            DetailPersonalInformation::create([
+                'personal_id' => $personalId,
+                'user_id' => $user->id,
+                'status' => 'undergraduate'
             ]);
 
             event(new Registered($user));
@@ -233,8 +246,55 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function uploadImage(Request $request)
     {
+        try {
+            $user = $request->user();
+            $validator = Validator::make($request->all(), [
+                'image_path' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Invalid data',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+            $personalId = User::where('personal_id', $user->personal_id)->first();
+            if (!$personalId) {
+                return response()->json([
+                    'message' => 'Invalid data',
+                    'errors' => 'User not found'
+                ], 404);
+            }
+            $personalInformation = PersonalInformation::where('id', $personalId->personal_id)->first();
+            if (!$personalInformation) {
+                return response()->json([
+                    'message' => 'Invalid data',
+                    'errors' => 'Information not found'
+                ], 404);
+            }
+            if ($request->hasFile('image_path')) {
+                $image = $request->file('image_path');
+                $directoryName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $personalInformation->full_name);
+                $imagePath = $image->store($directoryName, 's3');
+                Storage::disk('s3')->setVisibility($imagePath, 'public');
+            }
+            return response()->json([
+                'message' => 'Image uploaded successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Registration failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function signIn(Request $request)
+    {
+
+        Log::info('Login triggered');
+
         $validate = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string'
@@ -269,6 +329,7 @@ class AuthController extends Controller
             ], 401);
         }
 
+
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
             'message' => 'Login success',
@@ -296,11 +357,9 @@ class AuthController extends Controller
     {
         try {
             $validate = Validator::make($request->all(), [
-                'first_name' => 'string|max:255',
-                'last_name' => 'string|max:255',
                 'username' => 'string|max:255|unique:users,username,' . $request->user()->id,
-                'phone_number' => 'string|nullable|unique:users,phone_number,' . $request->user()->id,
-                'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+                'phone_number' => 'string|nullable|unique:personal_information,phone_number,' . $request->user()->personal_id,
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
             ]);
             if ($validate->fails()) {
                 return response()->json([
@@ -308,25 +367,47 @@ class AuthController extends Controller
                     'errors' => $validate->errors()
                 ], status: 400);
             }
-
             $validatedData = $validate->validate();
-            $user = $request->user();
-
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imagePath = $image->store('profile_images', 'public'); // Store the image in the 'public/profile_images' directory
+                $imagePath = $image->store('profile_images', 's3');
+                Storage::disk('s3')->setVisibility($imagePath, 'public');
 
-                $userImage = UserImages::updateOrCreate(
-                    ['user_id' => $user->id],
+                UserImages::updateOrCreate(
+                    ['user_id' => $request->user()->id],
                     ['user_image_path' => $imagePath]
                 );
-                $validatedData['image'] = $userImage->user_image_path;
+
             }
 
-            $user->update($validatedData);
+            $personalInformation = PersonalInformation::where('id', $request->user()->personal_id)->first();
+            if (!$personalInformation) {
+                return response()->json([
+                    'message' => 'Personal information not found',
+                ], 404);
+            }
 
-            $updatedUser = User::with('images')->where('id', $user->id)->first();
+            $existUser = User::where('id', $request->user()->id)->first();
+            if (!$existUser) {
+                return response()->json([
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $personalInformation->update([
+                'phone_number' => $validatedData['phone_number']
+            ]);
+            $existUser->update([
+                'username' => $validatedData['username']
+            ]);
+
+            $updatedUser = User::with([
+                'images',
+                'dataPribadi'
+            ])
+                ->where('id', $request->user()->id)
+                ->first();
 
             return response()->json([
                 'message' => 'Profile updated successfully',
@@ -335,7 +416,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Server error: ' . $e->getMessage(),
-            ], 500);
+            ], );
         }
     }
 

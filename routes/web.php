@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\KelasWebController;
 use App\Http\Controllers\MateriWebController;
 use App\Http\Controllers\QuizWebController;
+use App\Http\Controllers\ReportWebController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,4 +36,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('quiz', QuizWebController::class);
     Route::resource('materi', MateriWebController::class);
     Route::resource('kelas', KelasWebController::class);
+    Route::resource('reports', ReportWebController::class);
+
 });

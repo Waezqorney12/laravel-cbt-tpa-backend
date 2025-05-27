@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Add Soal')
+@section('title', 'Add Quiz')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,117 +16,145 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Add Materi</h1>
+                <h1>Add Quiz</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="{{ route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item"><a href="{{ route('materi.index') }}">Materi</a></div>
-                    <div class="breadcrumb-item">Add Materi</div>
+                    <div class="breadcrumb-item"><a href="{{ route('quiz.index') }}">Quiz</a></div>
+                    <div class="breadcrumb-item">Add Quiz</div>
                 </div>
             </div>
 
             <div class="section-body">
-                <h2 class="section-title">Create New Materi</h2>
-                <p class="section-lead">
-                    Fill in the form below to add a new materi.
-                </p>
+                <form action="{{ route('quiz.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Quiz Details</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="class_id">Class</label>
+                                        <select name="class_id" id="class_id" class="form-control select2">
+                                            @foreach ($classes as $class)
+                                                <option value="{{ $class->id }}">{{ $class->class_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title">Title</label>
+                                        <input type="text" name="title" id="title" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description</label>
+                                        <textarea name="description" id="description" class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="type">Type</label>
+                                        <select name="type" id="type" class="form-control select2" required>
+                                            <option value="choice">Choice</option>
+                                            <option value="essay">Essay</option>
+                                        </select>
+                                    </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Materi Form</h4>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('materi.store') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-group">
-                                <label for="class_id">Class</label>
-                                <select name="class_id" id="class_id" class="form-control select2">
-                                    <option value="" disabled selected>Select Class</option>
-                                    @foreach ($classes as $class)
-                                        <option value="{{ $class->id }}">{{ $class->class_name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('class_id')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Category</label>
+                                        <div class="selectgroup w-100">
+                                            <label class="selectgroup-item">
+                                                <input type="radio" name="category" value="Logika"
+                                                    class="selectgroup-input" checked ="">
+                                                <span class="selectgroup-button">Logika</span>
+                                            </label>
+                                            <label class="selectgroup-item">
+                                                <input type="radio" name="category" value="Verbal"
+                                                    class="selectgroup-input">
+                                                <span class="selectgroup-button">Verbal</span>
+                                            </label>
+                                            <label class="selectgroup-item">
+                                                <input type="radio" name="category" value="Numeric"
+                                                    class="selectgroup-input">
+                                                <span class="selectgroup-button">Numeric</span>
+                                            </label>
 
-                            <div class="form-group">
-                                <label for="materi_title">Title</label>
-                                <input type="text" name="materi_title" id="materi_title" class="form-control"
-                                    value="{{ old('materi_title') }}" required>
-                                @error('materi_title')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="materi_description">Description</label>
-                                <textarea name="materi_description" id="materi_description" class="form-control" rows="5" required>{{ old('materi_description') }}</textarea>
-                                @error('materi_description')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Category</label>
-                                <div class="selectgroup w-100">
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="materi_kategori" value="Logika"
-                                            class="selectgroup-input" checked ="">
-                                        <span class="selectgroup-button">Logika</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="materi_kategori" value="Verbal"
-                                            class="selectgroup-input">
-                                        <span class="selectgroup-button">Verbal</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="materi_kategori" value="Numeric"
-                                            class="selectgroup-input">
-                                        <span class="selectgroup-button">Numeric</span>
-                                    </label>
-
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="image_thumbnail">Thumbnail</label>
+                                        <input type="file" name="image_thumbnail" id="image_thumbnail"
+                                            class="form-control">
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label for="materi_images">Images</label>
-                                <input type="file" name="materi_images[]" id="materi_images" class="form-control"
-                                    multiple>
-                                @error('materi_images.*')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <a href="{{ route('materi.index') }}" class="btn btn-secondary">Cancel</a>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="row" id="questions-section">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Questions</h4>
+                                    <button type="button" class="btn btn-primary btn-sm ml-auto" id="add-question">Add
+                                        Question</button>
+                                </div>
+                                <div class="card-body" id="questions-container">
+                                    <!-- Questions will be dynamically added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </section>
     </div>
 @endsection
 
 @push('scripts')
-    <!-- JS Libraies -->
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            $('.select2').select2();
+        document.addEventListener('DOMContentLoaded', function() {
+            let questionIndex = 0;
+
+            document.getElementById('add-question').addEventListener('click', function() {
+                const container = document.getElementById('questions-container');
+                const type = document.getElementById('type').value;
+
+                let questionHtml = `
+                    <div class="form-group question-item">
+                        <label for="questions[${questionIndex}][quiz_question_id]">Question ID</label>
+                        <input type="text" name="questions[${questionIndex}][quiz_question_id]" class="form-control" required>
+                `;
+
+                if (type === 'choice') {
+                    questionHtml += `
+                        <label for="questions[${questionIndex}][choice_a]">Choice A</label>
+                        <input type="text" name="questions[${questionIndex}][choice_a]" class="form-control" required>
+                        <label for="questions[${questionIndex}][choice_b]">Choice B</label>
+                        <input type="text" name="questions[${questionIndex}][choice_b]" class="form-control" required>
+                        <label for="questions[${questionIndex}][choice_c]">Choice C</label>
+                        <input type="text" name="questions[${questionIndex}][choice_c]" class="form-control" required>
+                        <label for="questions[${questionIndex}][choice_d]">Choice D</label>
+                        <input type="text" name="questions[${questionIndex}][choice_d]" class="form-control" required>
+                        <label for="questions[${questionIndex}][correct_answer]">Correct Answer</label>
+                        <input type="text" name="questions[${questionIndex}][correct_answer]" class="form-control" required>
+                    `;
+                } else if (type === 'essay') {
+                    questionHtml += `
+                        <label for="questions[${questionIndex}][correct_answer]">Correct Answer</label>
+                        <textarea name="questions[${questionIndex}][correct_answer]" class="form-control" required></textarea>
+                    `;
+                }
+
+                questionHtml += `</div>`;
+                container.insertAdjacentHTML('beforeend', questionHtml);
+                questionIndex++;
+            });
         });
     </script>
-    <script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
-    <script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
-    <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
 @endpush

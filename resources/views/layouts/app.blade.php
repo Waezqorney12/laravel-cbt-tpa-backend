@@ -1,5 +1,11 @@
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 
 <head>
     <meta charset="UTF-8">

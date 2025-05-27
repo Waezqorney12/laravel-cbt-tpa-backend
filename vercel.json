@@ -1,0 +1,54 @@
+{
+    "version": 2,
+    "functions": {
+      "api/index.php": {
+        "runtime": "vercel-php@0.7.3"
+      }
+    },
+    "framework": null,
+    "routes": [
+      {
+        "src": "/(css|js|library|images|fonts)/(.*)",
+        "dest": "public/$1/$2"
+      },
+      {
+        "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico))",
+        "dest": "public/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/api/index.php"
+      }
+    ],
+    "outputDirectory": "public",
+    "env": {
+      "APP_ENV": "production",
+      "APP_DEBUG": "true",
+      "APP_URL": "https://quizziz-vercel.vercel.app",
+
+      "APP_CONFIG_CACHE": "/tmp/config.php",
+      "APP_CONFIG_EVENTS_CACHE": "/tmp/events.php",
+      "APP_PACKAGES_CACHE": "/tmp/packages.php",
+      "APP_ROUTES_CACHE": "/tmp/routes.php",
+      "APP_SERVICES_CACHE": "/tmp/services.php",
+      "VIEW_COMPILED_PATH": "/tmp",
+
+      "DB_CONNECTION": "mysql",
+      "DB_HOST": "or2np.h.filess.io",
+      "DB_PORT": "3307",
+      "DB_DATABASE": "Quizziz_magnetdesk",
+      "DB_USERNAME": "Quizziz_magnetdesk",
+      "DB_PASSWORD": "2cba312f897cb18d69329fa936ce586b9b8d085f",
+
+      "AWS_ACCESS_KEY_ID": "AKIAVU6L5FKHIGUG6LPG",
+      "AWS_SECRET_ACCESS_KEY": "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",
+      "AWS_DEFAULT_REGION": "ap-southeast-2",
+      "AWS_BUCKET": "quizziz-bucket",
+      "AWS_USE_PATH_STYLE_ENDPOINT":"false",
+      "AWS_URL":"https://quizziz-bucket.s3.ap-southeast-2.amazonaws.com",
+
+      "CACHE_DRIVER": "array",
+      "LOG_CHANNEL": "stderr",
+      "SESSION_DRIVER": "cookie"
+    }
+  }

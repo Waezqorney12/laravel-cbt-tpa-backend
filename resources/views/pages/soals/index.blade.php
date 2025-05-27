@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4>Questions</h4>
-                        <a href="{{ route('users.create') }}" class="btn btn-primary">Add Question</a>
+                        <a href="{{ route('soal.create') }}" class="btn btn-primary">Add Question</a>
                     </div>
                     <div class="card-body">
                         <div class="float-right">
@@ -46,7 +46,7 @@
                                             <td>{{ $question->question }}</td>
                                             <td>
                                                 @if ($question->quiz_image_path)
-                                                    <img src="{{ asset('storage/' . $question->quiz_image_path) }}"
+                                                    <img src="{{ Storage::disk('s3')->url($question->quiz_image_path) }}"
                                                         alt="Quiz Image" width="100">
                                                 @else
                                                     No Image

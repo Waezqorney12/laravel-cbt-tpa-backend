@@ -28,7 +28,7 @@ class KelasWebController extends Controller
 
     public function create()
     {
-        $users = \App\Models\User::where('roles', 'STAFF')->get();
+        $users = User::where('roles', 'STAFF')->get();
 
         return view('pages.kelas.create', compact('users'));
     }

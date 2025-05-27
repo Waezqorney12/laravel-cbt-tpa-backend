@@ -93,17 +93,8 @@
                                 @if ($materi->image->isNotEmpty())
                                     @foreach ($materi->image as $image)
                                         <div class="col-md-3 mb-3">
-                                            <img src="{{ asset('storage/' . $image->materi_image_path) }}"
+                                            <img src="{{ Storage::disk('s3')->url($image->materi_image_path) }}"
                                                 alt="Materi Image" class="img-thumbnail">
-                                            <div class="mt-2">
-                                                <form action="{{ route('materi.image.destroy', $image->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Are you sure you want to delete this image?')">Delete</button>
-                                                </form>
-                                            </div>
                                         </div>
                                     @endforeach
                                 @else

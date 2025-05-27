@@ -42,7 +42,7 @@
                             <label for="quiz_image_path">Image (optional)</label>
                             @if ($question->quiz_image_path)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $question->quiz_image_path) }}" alt="Quiz Image"
+                                    <img src="{{ Storage::disk('s3')->url($question->quiz_image_path) }}" alt="Quiz Image"
                                         width="150">
                                 </div>
                             @endif

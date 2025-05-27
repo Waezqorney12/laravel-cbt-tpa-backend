@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MateriController extends Controller
 {
@@ -57,7 +58,8 @@ class MateriController extends Controller
             $materi = Materi::where('materi_title', $data['materi_title'])->first();
             if ($request->hasFile('materi_image_path')) {
                 $image = $request->file('materi_image_path');
-                $imagePath = $image->store('materis_image', 'public');
+                $imagePath = $image->store('materis_image', 's3');
+                Storage::disk('s3')->setVisibility($imagePath, 'public');
 
 
                 MateriImage::create([
@@ -159,116 +161,7 @@ class MateriController extends Controller
             ], 500);
         }
     }
-    public function generateMateriUser(): JsonResponse
-    {
-        try {
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json([
-                    'message' => 'Operation Failed',
-                    'data' => 'User not authenticated'
-                ], 401);
-            }
-            $materi = Materi::inRandomOrder()->limit(100)->get();
 
-            if ($materi->isEmpty()) {
-                return response()->json([
-                    'message' => 'Operation Failed',
-                    'data' => 'No materi generated'
-                ], 400);
-            }
-
-            $existingMateriIds = DetailMateri::where('user_id', $user->id)
-                ->pluck('materi_id')
-                ->toArray();
-
-            $detailMateri = [];
-            foreach ($materi as $m) {
-
-                if (!in_array($m->id, $existingMateriIds)) {
-                    $detailMateri[] = [
-                        'user_id' => $user->id,
-                        'materi_id' => $m->id,
-                        'status' => 0,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ];
-                }
-            }
-            if (count($detailMateri) === 0) {
-                return response()->json([
-                    'message' => 'All materi already assigned',
-                    'data' => 'No new materi to assign'
-                ], 200);
-            }
-
-
-
-            DetailMateri::insert($detailMateri);
-
-            return response()->json([
-                'message' => 'Operation successfully',
-                'data' => 'Success to generate materi for user'
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Failed to generate materi',
-                'error' => $th->getMessage()
-            ], 500);
-        }
-    }
-    public function generateMateri(): JsonResponse
-    {
-        try {
-            $fake = Faker::create();
-            $materiList = [];
-
-            for ($i = 0; $i < 100; $i++) {
-                $materiList[] = [
-                    'materi_title' => $fake->sentence(6),
-                    'materi_description' => $fake->paragraph(3),
-                    'materi_kategori' => $fake->randomElement(['Logika', 'Verbal', 'Numeric']),
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
-            }
-            if (count($materiList) === 0) {
-                return response()->json([
-                    'message' => 'Operation Failed',
-                    'data' => 'No materi generated'
-                ], 400);
-            }
-            Materi::insert($materiList);
-
-            $materi = Materi::get();
-
-            $materiImageList = [];
-            foreach ($materi as $m) {
-                $materiImageList[] = [
-                    'materi_id' => $m->id,
-                    'materi_image_path' => "https://picsum.photos/500/300",
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
-            }
-            /*
-            Truncate is similiar to insert it will delete all data and add newest
-            data in the table with batch mode but faster, so it won't affect
-            the performamce
-            */
-            MateriImage::truncate();
-            MateriImage::insert($materiImageList);
-            return response()->json([
-                'message' => 'Operation Success',
-                'data' => 'Materi generated successfully'
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Failed to generate materi',
-                'error' => $th->getMessage()
-            ], 500);
-        }
-    }
     public function updateStatus(Request $request): JsonResponse
     {
         try {

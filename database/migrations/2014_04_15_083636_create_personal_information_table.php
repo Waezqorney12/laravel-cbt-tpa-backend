@@ -14,12 +14,12 @@ return new class extends Migration {
             $table->id();
             $table->string('matrix_id')->unique();
             $table->string('first_name');
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('full_name');
             $table->date('birth_date');
             $table->enum('gender', ['woman', 'man']);
             $table->string('address');
-            $table->string('phone_number');
+            $table->string('phone_number')->unique();
             $table->string('departement');
             $table->string('study_program');
             $table->integer('entry_year')->nullable();
