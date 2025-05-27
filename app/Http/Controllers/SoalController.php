@@ -49,8 +49,9 @@ class SoalController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('quiz_image_path')) {
-            $imagePath = $request->file('quiz_image_path')->store('question_images', 'public');
+            $imagePath = $request->file('quiz_image_path')->store('question_images', 's3');
             $data['quiz_image_path'] = $imagePath;
+            Storage::disk('s3')->setVisibility($imagePath, 'public');
         }
 
         QuizQuestion::create($data);
@@ -82,8 +83,9 @@ class SoalController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('quiz_image_path')) {
-            $imagePath = $request->file('quiz_image_path')->store('quiz_images', 'public');
+            $imagePath = $request->file('quiz_image_path')->store('quiz_images', 's3');
             $data['quiz_image_path'] = $imagePath;
+            Storage::disk('s3')->setVisibility($imagePath, 'public');
         }
 
         $question->update($data);
