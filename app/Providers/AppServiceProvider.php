@@ -11,14 +11,14 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        if (env('APP_ENV') !== 'local') {
-            URL::forceScheme('https');
-        } else {
-            URL::forceScheme('http');
-        }
-    }
+    // public function register(): void
+    // {
+    //     if (env('APP_ENV') !== 'local') {
+    //         URL::forceScheme('https');
+    //     } else {
+    //         URL::forceScheme('http');
+    //     }
+    // }
 
     /**
      * Bootstrap any application services.

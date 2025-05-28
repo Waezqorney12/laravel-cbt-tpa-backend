@@ -19,7 +19,7 @@ class ReportModel extends Model
 
     public function detailReport()
     {
-        return $this->hasMany(DetailReport::class);
+        return $this->hasMany(DetailReport::class, 'report_id');
     }
 
 }

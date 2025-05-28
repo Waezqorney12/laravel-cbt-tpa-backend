@@ -45,7 +45,7 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $question->question }}</td>
                                             <td>
-                                                @if ($question->quiz_image_path)
+                                                @if (!empty($question->quiz_image_path))
                                                     <img src="{{ Storage::disk('s3')->url($question->quiz_image_path) }}"
                                                         alt="Quiz Image" width="100">
                                                 @else

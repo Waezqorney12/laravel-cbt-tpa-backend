@@ -54,7 +54,7 @@ class ReportController extends Controller
                 return [
                     'subject' => $history->report->subject,
                     'context' => $history->report->context,
-                    'rating' => $history->report->rating,
+                    'rating' => (int) $history->report->rating,
                     'status' => $history->report->status,
                     'date' => $history->report->created_at,
                 ];
